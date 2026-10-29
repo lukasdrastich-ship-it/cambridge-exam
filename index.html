@@ -14,7 +14,6 @@ const state={level:null,mode:null,sections:new Set(),currentPaper:0,remaining:0,
 const app=document.getElementById('app');
 const modes=[
 {id:'exam',icon:'⏱',tone:'',title:'Exam Simulation',tag:'Real exam feel',desc:'Follow the official exam order and time limits. You can skip scheduled breaks.',foot:'Start exam simulation'},
-{id:'flex',icon:'Ⅱ',tone:'green',title:'Flexible Practice',tag:'Your own pace',desc:'Work at your own pace and pause the timer whenever you need to.',foot:'Start flexible practice'},
 {id:'sections',icon:'▤',tone:'peach',title:'Practice by Section',tag:'Choose papers',desc:'Choose the exam papers you want to practise.',foot:'Choose papers'}];
 const examData={
 B2:[
@@ -36,7 +35,6 @@ function renderModes(){stopTimer();app.innerHTML='<section class="hero"><p class
 function frame(title,subtitle,body,actions){app.innerHTML='<div class="step"><span class="dot">3</span><b>'+title+'</b></div><section class="panel"><h2>'+title+'</h2><p class="intro">'+subtitle+'</p>'+body+actions+'</section>'}
 function renderDetail(){const mode=modes.find(m=>m.id===state.mode);let body='';
 if(state.mode==='exam')body='<div class="note">After each paper, a 10-minute break timer will appear. You can skip that break whenever you are ready to continue.</div><div class="note">Each paper has its own countdown timer and list of parts. No exam questions are included.</div>';
-else if(state.mode==='flex')body='<div class="choices"><div class="choice"><span class="symbol green">Ⅱ</span><span><strong>Pause whenever you need</strong><small>Pause and resume the timer at any point during a paper.</small></span></div><div class="choice"><span class="symbol">↻</span><span><strong>Choose your pace</strong><small>Move between papers in any order. This prototype does not save progress after you leave.</small></span></div></div>';
 else body='<p style="margin:0 0 14px;font-weight:750">Choose the papers you want to practise:</p><div class="sections">'+examData[state.level].map(p=>'<button class="section" data-section="'+p.name+'" aria-pressed="'+state.sections.has(p.name)+'">'+(state.sections.has(p.name)?'✓ ':'')+p.name+'<br><small style="color:var(--muted)">'+p.display+'</small></button>').join('')+'</div><div class="note">Choose one or more papers. Each selected paper includes its part names and a countdown timer.</div>';
 frame(mode.title,'Selected exam: '+(state.level==='B2'?'B2 First (FCE)':'C1 Advanced (CAE)'),body,'<div class="actions"><button class="primary" id="continue" '+(state.mode==='sections'&&!state.sections.size?'disabled':'')+'>'+(state.mode==='sections'?'Confirm selection':'Continue')+' →</button><button class="secondary" id="back">← Back to modes</button></div>');
 app.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>{const s=b.dataset.section;state.sections.has(s)?state.sections.delete(s):state.sections.add(s);renderDetail()});document.getElementById('back').onclick=renderModes;document.getElementById('continue').onclick=()=>{state.currentPaper=0;state.remaining=0;state.breakRemaining=600;renderSummary(mode)}}

@@ -296,6 +296,7 @@ function renderTaskBody(p,index){
 const first=paperQuestionStart(p,index),count=partCount(p,index),key=q=>taskKey(state.currentPaper,index,q),ans=q=>answerValue(key(q));
 const bookmark=q=>'<button class="task-bookmark '+(state.bookmarks[key(q)]?'marked':'')+'" data-bookmark-question="'+q+'" aria-label="Bookmark question">♧</button>';
 const input=(q,ph='')=>'<input class="rue-gap-input" data-answer="'+key(q)+'" data-question="'+q+'" value="'+esc(ans(q))+'" placeholder="'+(ph||first+q)+'">';
+const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" tabindex="0"><button data-resize="less" aria-label="Narrow left column">‹</button><button data-resize="more" aria-label="Widen left column">›</button></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';
 if(p.id==='writing'){
  if(index===0){
   const answerKey=key(0),saved=ans(0),words=saved.trim()?saved.trim().split(/\s+/).length:0;
@@ -349,7 +350,7 @@ const intro='<section class="task-instructions"><strong>Questions '+first+'–'+
 'Read the article below. Six sentences have been removed from the text. Choose from the sentences A–G the one which fits each gap. There is one extra sentence.',
 'You are going to read about people who took part in different activities. For each question, choose from the people (A–D). The people may be chosen more than once.'
 ][index]+'</p></section>';
-const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" tabindex="0"><button data-resize="less" aria-label="Narrow left column">‹</button><button data-resize="more" aria-label="Widen left column">›</button></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';
+
 if(index===0){
 const opts=[['set','put','took','made'],['achieve','overcome','manage','succeed'],['take','have','make','do'],['reach','gain','arrive','win'],['amount','number','level','size'],['despite','whereas','although','unless'],['experienced','qualified','skilled','talented'],['set','put','made','kept']];
 const text='Lorem ipsum dolor sit amet, consectetur adipiscing elit. '+Array.from({length:8},(_,q)=>' Integer vitae justo nec arcu facilisis consequat <span class="gap-choice-wrap"><span class="gap-choice-anchor"><button class="gap-choice" data-gap-open="'+q+'">'+(ans(q)?esc(ans(q)):'Question '+(first+q))+'</button></span><span class="gap-choice-menu" id="gapMenu'+q+'" hidden>'+opts[q].map((v,k)=>'<button data-gap-value="'+q+'" data-value="'+String.fromCharCode(65+k)+'">'+String.fromCharCode(65+k)+' · '+v+'</button>').join('')+'<button class="gap-choice-clear" data-gap-clear="'+q+'" aria-label="Clear answer" '+(ans(q)?'':'hidden')+'>×</button></span></span> '+loremText(q+1).split(' ').slice(0,12).join(' ')+'.').join(' ');

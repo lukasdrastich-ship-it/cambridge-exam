@@ -193,10 +193,20 @@ const instructions=p.id==='rue'?['For each question, choose the correct answer f
 const title=titles[index%titles.length];
 let text=state.generatedText[key];
 if(!text){
- const base='During recent years, communities have discovered new ways to share ideas and make everyday activities more interesting. A small group of local residents decided to organise a series of informal events, hoping to bring people together and create something useful. At first, the plan seemed quite simple, although several unexpected details soon required attention. People offered different suggestions, compared possible solutions and gradually developed an approach that suited everyone. The organisers were pleased to see how quickly the project attracted interest. By the end, participants had gained practical experience, met new people and found reasons to continue working together. The most important lesson was that even a modest idea can lead to positive changes when people are willing to contribute.';
- const fillers=['In addition,','For this reason,','At the same time,','As a result,','In many cases,','More importantly,'];
- const endings=['the experience encouraged people to think differently.','the group decided to explore a few more possibilities.','small improvements made a noticeable difference.'];
- text=base+' '+fillers[Math.floor(Math.random()*fillers.length)]+' '+endings[Math.floor(Math.random()*endings.length)];
+ const loremSentences=[
+ 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+ 'Integer vitae justo nec arcu facilisis consequat sed sed neque.',
+ 'Praesent commodo, sapien at interdum posuere, erat lorem feugiat nibh, vitae tincidunt nibh lectus a erat.',
+ 'Curabitur blandit tempus porttitor, nullam quis risus eget urna mollis ornare vel eu leo.',
+ 'Donec ullamcorper nulla non metus auctor fringilla, sed posuere consectetur est at lobortis.',
+ 'Aenean lacinia bibendum nulla sed consectetur, vivamus sagittis lacus vel augue laoreet rutrum faucibus.',
+ 'Maecenas faucibus mollis interdum, morbi leo risus porta ac consectetur ac vestibulum at eros.',
+ 'Etiam porta sem malesuada magna mollis euismod, donec sed odio dui.',
+ 'Cras mattis consectetur purus sit amet fermentum, vestibulum id ligula porta felis euismod semper.',
+ 'Nullam id dolor id nibh ultricies vehicula ut id elit.'
+ ];
+ const shuffled=loremSentences.slice().sort(()=>Math.random()-.5);
+ text=shuffled.slice(0,5+Math.floor(Math.random()*3)).join(' ');
  state.generatedText[key]=text;
 }
 const words=text.split(/\s+/),parts=[],chunk=Math.max(5,Math.floor(words.length/(count+1)));

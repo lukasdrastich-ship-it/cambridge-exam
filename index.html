@@ -30,12 +30,6 @@ B2:[
 {id:'writing',name:'Writing',minutes:80,display:'1 hour 20 minutes',parts:['Part 1 — Essay','Part 2 — Article, email/letter, report or review']},
 {id:'listening',name:'Listening',minutes:40,display:'About 40 minutes',parts:['Part 1 — Multiple choice','Part 2 — Sentence completion','Part 3 — Multiple matching','Part 4 — Multiple choice']},
 {id:'speaking',name:'Speaking',minutes:14,display:'14 minutes per pair',parts:['Part 1 — Interview','Part 2 — Long turn','Part 3 — Collaborative task','Part 4 — Discussion']}
-],
-C1:[
-{id:'rue',name:'Reading & Use of English',minutes:90,display:'1 hour 30 minutes',parts:['Part 1 — Multiple-choice cloze','Part 2 — Open cloze','Part 3 — Word formation','Part 4 — Key word transformations','Part 5 — Multiple choice','Part 6 — Cross-text multiple matching','Part 7 — Gapped text','Part 8 — Multiple matching']},
-{id:'writing',name:'Writing',minutes:90,display:'1 hour 30 minutes',parts:['Part 1 — Essay','Part 2 — Proposal, report, review or email/letter']},
-{id:'listening',name:'Listening',minutes:40,display:'About 40 minutes',parts:['Part 1 — Multiple choice','Part 2 — Sentence completion','Part 3 — Multiple choice','Part 4 — Multiple matching']},
-{id:'speaking',name:'Speaking',minutes:15,display:'15 minutes per pair',parts:['Part 1 — Interview','Part 2 — Long turn','Part 3 — Collaborative task','Part 4 — Discussion']}
 ]};
 function papers(){return examData[state.level].filter(p=>state.mode!=='sections'||state.sections.has(p.name))}
 function stopTimer(){if(state.timerId)clearInterval(state.timerId);state.timerId=null;state.running=false}

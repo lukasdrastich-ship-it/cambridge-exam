@@ -204,6 +204,42 @@ body.exam-active .listening-start-screen{position:fixed;inset:61px 0 0;z-index:6
 .speaking-review-placeholder{margin-top:16px;border:1px dashed #bdc6d8;border-radius:14px;padding:17px;color:var(--muted);background:#fafbfe}
 .speaking-setup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 @media(max-width:700px){.speaking-choice-grid,.speaking-roles{grid-template-columns:1fr}.speaking-console-head{align-items:flex-start}}
+
+/* Realistic, no-API B2 First Speaking practice */
+.speaking-part-nav{display:flex;gap:6px;overflow-x:auto;margin:12px 0 16px}
+.speaking-part-tab{border:1px solid var(--line);background:#fff;padding:10px 13px;border-radius:8px;white-space:nowrap;color:var(--ink)}
+.speaking-part-tab[aria-pressed=true]{background:#edf2ff;border-color:var(--blue);color:var(--blue);font-weight:800}
+.speaking-free-label{font-size:.8rem;font-weight:750;background:#e8f5ed;color:#28613c;padding:7px 11px;border-radius:99px}
+.speaking-question-list{display:grid;gap:9px;margin:18px 0}
+.speaking-question-list article{padding:13px 15px;border:1px solid var(--line);border-radius:10px;background:#fbfcff}
+.speaking-question-list article span{font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}
+.speaking-question-list article p{margin:5px 0 0}
+.speaking-photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.speaking-photo-grid figure{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#f5f6f8}
+.speaking-photo-grid img{display:block;width:100%;height:260px;object-fit:cover}
+.speaking-photo-grid figcaption{padding:9px 12px;font-size:.82rem;color:var(--muted)}
+.speaking-prompt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:18px 0}
+.speaking-prompt-card{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:13px;background:#fbfcff}
+.speaking-prompt-card b{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:50%;background:#edf2ff;color:var(--blue)}
+.speaking-partner-box{margin:18px 0;padding:16px;border:1px solid #c8d5f2;border-radius:12px;background:#f5f7ff}
+.speaking-partner-box p{margin:7px 0 12px}
+.speaking-record-panel{margin-top:24px;padding:17px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}
+.speaking-record-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.speaking-record-head label{font-size:.86rem;color:var(--muted)}
+.speaking-record-head select{padding:7px;border:1px solid var(--line);border-radius:6px}
+#speakingManual{width:100%;margin:12px 0;padding:11px;border:1px solid #cbd2dc;border-radius:8px;font:inherit;line-height:1.5}
+.speaking-controls,.speaking-stage-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.speaking-mic-status{font-size:.83rem;color:var(--muted);margin:10px 0 0}
+.speaking-transcript{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.speaking-transcript h3{margin:0 0 10px}
+.speaking-transcript-entry{padding:10px 0;border-bottom:1px solid var(--line)}
+.speaking-transcript-entry:last-child{border-bottom:0}
+.speaking-transcript-entry p{margin:5px 0 0;white-space:pre-wrap}
+.speaking-stage-actions{margin-top:20px}
+.speaking-stage-actions .spacer{flex:1}
+.speaking-disclaimer{font-size:.8rem;line-height:1.5;color:var(--muted);margin:14px 2px}
+@media(max-width:700px){.speaking-photo-grid,.speaking-prompt-grid{grid-template-columns:1fr}.speaking-photo-grid img{height:210px}.speaking-stage-actions .spacer{display:none}}
+
 </style></head>
 <body><div class="shell"><header class="topbar"><div class="brand"><div class="mark">C</div><span>Cambridge Prep</span></div><div class="top-tag">Your preparation. Your pace.</div></header><main id="app" aria-live="polite"></main><footer class="footer"><span>Cambridge Prep · Navigation prototype</span><span>An independent study aid, not affiliated with Cambridge English.</span></footer></div>
 <script>
@@ -431,29 +467,77 @@ const people=['A — Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
 }
 function renderSpeakingWorkspace(p){
  document.body.classList.add('exam-active');
- if(!state.speakingCandidateMode){
-  stopTimer();
-  app.innerHTML=examHeader(fmt(p.minutes*60))+'<main class="exam-content"><section class="speaking-setup"><p class="eyebrow">Speaking · Before the test</p><h1>How many candidates are taking the test?</h1><p>The B2 First Speaking practice is designed for two candidates. Choose your setup before entering the test.</p><div class="speaking-choice-grid"><button class="speaking-choice" id="speakingSolo"><strong>👤 I am on my own</strong><span>An AI partner will take the role of the second candidate and take part in the paired tasks.</span></button><button class="speaking-choice" id="speakingPair"><strong>👥 We are two candidates</strong><span>You and another person will take the candidate roles. The AI examiner will conduct the test.</span></button></div><div class="note">The three-candidate option is not included. The speaking test follows the standard two-candidate format.</div><div class="speaking-setup-actions"><button class="secondary" id="speakingBack">← Back to papers</button></div></section></main>';
-  document.getElementById('speakingSolo').onclick=()=>{state.speakingCandidateMode='solo';renderSpeakingWorkspace(p)};
-  document.getElementById('speakingPair').onclick=()=>{state.speakingCandidateMode='pair';renderSpeakingWorkspace(p)};
-  document.getElementById('speakingBack').onclick=()=>{state.speakingCandidateMode=null;state.partIndex=0;if(state.currentPaper>0){state.currentPaper--;renderPractice()}else renderDetail()};
-  wireExamHeader();
-  return;
- }
- if(!state.remaining)state.remaining=p.minutes*60;
- const solo=state.speakingCandidateMode==='solo';
- const roleCards='<div class="speaking-roles"><article class="speaking-role"><div class="speaking-avatar">🎙</div><div><h3>Interlocutor · AI examiner</h3><p>Leads the interview, gives task instructions, manages timing and guides the candidates through all four parts.</p></div></article><article class="speaking-role"><div class="speaking-avatar">📝</div><div><h3>Assessor · AI examiner</h3><p>Listens without joining the conversation and records evidence for the final speaking assessment.</p></div></article>'+(solo?'<article class="speaking-role"><div class="speaking-avatar">💬</div><div><h3>Candidate 2 · AI partner</h3><p>Takes part naturally in the paired tasks, responds to your ideas and helps create a realistic two-candidate exam.</p></div></article>':'<article class="speaking-role"><div class="speaking-avatar">👥</div><div><h3>Candidate 2 · Human partner</h3><p>The second candidate is the person taking the test with you at this computer.</p></div></article>')+'</div>';
- const partNames=['Part 1 · Interview','Part 2 · Long turn','Part 3 · Collaborative task','Part 4 · Discussion'];
- const prompts=[
- '<h2>Getting to know you</h2><p>The examiner will ask each candidate questions about their lives, interests, experiences and plans.</p><ol><li>Where do you live, and what do you like most about living there?</li><li>What do you enjoy doing when you have some free time?</li><li>Do you prefer spending time with friends or on your own? Why?</li><li>Is there something new you would like to learn in the future?</li></ol>',
- '<h2>Comparing photographs</h2><p>You will be given two photographs and asked to compare them, describe what the people might be experiencing and answer a question printed above the photographs. Each candidate has a one-minute long turn.</p>',
- '<h2>Working towards a decision</h2><p>You and the other candidate will discuss a question using five written prompts. You will discuss the ideas for about two minutes and then make a decision together in about one minute.</p>',
- '<h2>Developing the discussion</h2><p>The examiner will ask further questions connected with the Part 3 topic. You will be expected to explain and justify opinions, agree or disagree and speculate.</p>'
+ const parts=[
+  {name:'Part 1 · Interview',time:120,question:'First, let’s talk about your daily life.',items:['Where do you live, and what do you like most about living there?','What do you enjoy doing in your free time?','Do you prefer spending time with friends or on your own? Why?','What kind of work or study would you like to do in the future?','How important is learning English to you?']},
+  {name:'Part 2 · Long turn',time:60,question:'Compare the photographs and say what the people might be enjoying about these activities.',items:[]},
+  {name:'Part 3 · Collaborative task',time:120,question:'Here are some ways people can improve their health and well-being. Talk to each other about how useful these ideas might be, and then decide which would be the most effective.',items:['Doing more exercise','Eating healthier food','Getting enough sleep','Spending time outdoors','Meeting friends regularly']},
+  {name:'Part 4 · Discussion',time:240,question:'Now let’s talk about health and well-being in a wider context.',items:['Why do some people find it difficult to have a healthy lifestyle?','Do you think schools should teach children how to stay healthy?','How has modern technology changed the way people look after their health?','Is it more important to be physically healthy or mentally healthy? Why?']}
  ];
- app.innerHTML=examHeader(fmt(state.remaining||p.minutes*60))+'<main class="exam-content"><section class="speaking-console"><div class="speaking-console-head"><div><strong>Speaking · B2 First</strong><div class="muted" style="font-size:.88rem;margin-top:4px">'+(solo?'You + AI candidate partner':'Two human candidates')+' · 4 parts</div></div><span class="speaking-live-status"><i></i> Voice AI integration planned for final stage</span></div>'+roleCards+'<section class="speaking-stage"><span class="speaking-stage-label">Exam structure · '+partNames[0]+'</span>'+prompts[0]+'<div class="speaking-future-note"><strong>Live exam controls are being prepared.</strong><br>In the final integration stage, the examiner will speak and listen in real time, control the transitions between tasks and prevent manual skipping. The microphone, distinct AI voices and live transcript will be connected only after the secure backend is configured.</div><div class="speaking-review-placeholder"><strong>Final assessment area</strong><p style="margin:7px 0 0">After the complete test, the assessor will provide feedback on grammar, vocabulary, pronunciation, fluency, discourse management and interactive communication, with examples from the conversation.</p></div></section><div class="speaking-setup-actions"><button class="secondary" id="speakingChangeSetup">Change candidate setup</button><button class="secondary" id="speakingBackPapers">← Back to papers</button></div></section></main>';
- document.getElementById('speakingChangeSetup').onclick=()=>{stopTimer();state.speakingCandidateMode=null;renderSpeakingWorkspace(p)};
- document.getElementById('speakingBackPapers').onclick=()=>{stopTimer();state.speakingCandidateMode=null;state.partIndex=0;if(state.currentPaper>0){state.currentPaper--;renderPractice()}else renderDetail()};
+ if(!state.speakingCandidateMode){
+  stopTimer();state.speakingPart=0;state.speakingTranscript=[];state.speakingTurn=0;
+  app.innerHTML=examHeader(fmt(p.minutes*60))+'<main class="exam-content"><section class="speaking-setup"><p class="eyebrow">Speaking · B2 First practice</p><h1>Choose your practice format</h1><p>Both formats follow the four parts of the B2 First Speaking test. The examiner’s instructions and sample partner contributions are built into this free practice tool.</p><div class="speaking-choice-grid"><button class="speaking-choice" id="speakingSolo"><strong>👤 I am practising alone</strong><span>A scripted partner takes part in the collaborative task. You answer the examiner yourself.</span></button><button class="speaking-choice" id="speakingPair"><strong>👥 We are two candidates</strong><span>Two people take turns speaking into the same computer. You can select who is answering.</span></button></div><div class="note"><strong>Free browser mode:</strong> spoken instructions use your browser’s voice. Microphone transcription depends on Chrome support and permission. No API key, paid service or automatic AI marking is used.</div><div class="speaking-setup-actions"><button class="secondary" id="speakingBack">← Back to papers</button></div></section></main>';
+  document.getElementById('speakingSolo').onclick=()=>{state.speakingCandidateMode='solo';state.speakingPart=0;state.speakingTranscript=[];renderSpeakingWorkspace(p)};
+  document.getElementById('speakingPair').onclick=()=>{state.speakingCandidateMode='pair';state.speakingPart=0;state.speakingTranscript=[];renderSpeakingWorkspace(p)};
+  document.getElementById('speakingBack').onclick=()=>{state.speakingCandidateMode=null;state.partIndex=0;if(state.currentPaper>0){state.currentPaper--;renderPractice()}else renderDetail()};
+  wireExamHeader();return;
+ }
+ if(!state.speakingTranscript)state.speakingTranscript=[];
+ if(typeof state.speakingPart!=='number')state.speakingPart=0;
+ const idx=state.speakingPart,part=parts[idx],solo=state.speakingCandidateMode==='solo';
+ const safe=function(x){return String(x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+ const transcript=state.speakingTranscript.map(function(x){return '<div class="speaking-transcript-entry"><strong>'+safe(x.who)+'</strong><p>'+safe(x.text)+'</p></div>'}).join('')||'<p class="muted">Your answers will appear here when you add them.</p>';
+ const nav=parts.map(function(x,i){return '<button class="speaking-part-tab" data-speaking-part="'+i+'" aria-pressed="'+(i===idx)+'">'+safe(x.name)+'</button>'}).join('');
+ let task='';
+ if(idx===0){
+  task='<h2>Getting to know you</h2><p>The examiner asks each candidate questions about themselves. Give full answers and explain your opinions.</p><div class="speaking-question-list">'+part.items.map(function(q,i){return '<article><span>Question '+(i+1)+'</span><p>'+safe(q)+'</p></article>'}).join('')+'</div>';
+ }else if(idx===1){
+  task='<h2>Comparing photographs</h2><p>'+safe(part.question)+'</p><div class="speaking-photo-grid"><figure><img alt="People exercising outdoors" src="https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=900&q=80"><figcaption>Photograph A · Outdoor exercise</figcaption></figure><figure><img alt="People exercising indoors" src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=80"><figcaption>Photograph B · Indoor exercise</figcaption></figure></div><div class="note">You have about 1 minute. Compare the situations; do not simply describe each photograph separately.</div>';
+ }else if(idx===2){
+  task='<h2>Making a decision together</h2><p>'+safe(part.question)+'</p><div class="speaking-prompt-grid">'+part.items.map(function(q,i){return '<div class="speaking-prompt-card"><b>'+(i+1)+'</b>'+safe(q)+'</div>'}).join('')+'</div><div class="note">'+(solo?'In solo mode, the practice partner will offer a different opinion after you have contributed.':'Take turns, respond to each other and try to reach a joint decision.')+'</div>';
+ }else{
+  task='<h2>Further discussion</h2><p>'+safe(part.question)+'</p><div class="speaking-question-list">'+part.items.map(function(q,i){return '<article><span>Discussion question '+(i+1)+'</span><p>'+safe(q)+'</p></article>'}).join('')+'</div>';
+ }
+ const partner=solo&&idx===2?'<section class="speaking-partner-box"><strong>Candidate 2 · Practice partner</strong><p id="partnerLine">I think getting enough sleep is a good starting point, because it affects almost everything else. What do you think?</p><button class="secondary" id="partnerSpeak">🔊 Play partner’s contribution</button></section>':'';
+ app.innerHTML=examHeader(fmt(state.remaining||p.minutes*60))+'<main class="exam-content"><section class="speaking-console"><div class="speaking-console-head"><div><strong>Speaking · B2 First</strong><div class="muted" style="font-size:.88rem;margin-top:4px">'+(solo?'Solo practice with a sample partner':'Two candidates · shared device')+'</div></div><span class="speaking-free-label">Free browser practice</span></div><nav class="speaking-part-nav">'+nav+'</nav><section class="speaking-stage"><div class="speaking-stage-label">'+safe(part.name)+' · '+Math.round(part.time/60)+' min approx.</div>'+task+partner+'<div class="speaking-record-panel"><div class="speaking-record-head"><strong>Speaking response</strong>'+(solo?'':'<label>Who is speaking? <select id="speakerSelect"><option>Candidate 1</option><option>Candidate 2</option></select></label>')+'</div><textarea id="speakingManual" rows="3" placeholder="If microphone transcription is unavailable, type a short note about what you said."></textarea><div class="speaking-controls"><button class="primary" id="micStart">🎙 Start speaking</button><button class="secondary" id="micStop" disabled>Stop microphone</button><button class="secondary" id="saveAnswer">Save typed answer</button><button class="secondary" id="readInstruction">🔊 Read instructions</button></div><p class="speaking-mic-status" id="micStatus">Microphone has not been started. Allow access when Chrome asks.</p></div><section class="speaking-transcript"><h3>Answer notes</h3>'+transcript+'</section><div class="speaking-stage-actions"><button class="secondary" id="speakingChangeSetup">Change format</button><button class="secondary" id="speakingBackPapers">← Back to papers</button><span class="spacer"></span><button class="primary" id="speakingNext">'+(idx===3?'Finish practice':'Continue to '+parts[idx+1].name)+' →</button></div></section><p class="speaking-disclaimer">Practice support, not an official Cambridge test. The browser can create a transcript where supported, but this page does not grade pronunciation, grammar or vocabulary automatically.</p></section></main>';
+ function addEntry(text){
+  if(!text||!text.trim())return;
+  const who=solo?'You':(document.getElementById('speakerSelect')?.value||'Candidate 1');
+  state.speakingTranscript.push({who:who,text:text.trim()});
+  renderSpeakingWorkspace(p);
+ }
+ const manual=document.getElementById('speakingManual');
+ document.getElementById('saveAnswer').onclick=()=>addEntry(manual.value);
+ document.getElementById('readInstruction').onclick=()=>{if(!('speechSynthesis' in window)){document.getElementById('micStatus').textContent='Speech playback is not available in this browser.';return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(part.question);u.lang='en-GB';speechSynthesis.speak(u)};
+ const partnerSpeak=document.getElementById('partnerSpeak');
+ if(partnerSpeak)partnerSpeak.onclick=()=>{const u=new SpeechSynthesisUtterance(document.getElementById('partnerLine').textContent);u.lang='en-GB';u.rate=.94;if(window.speechSynthesis){speechSynthesis.cancel();speechSynthesis.speak(u)}};
+ let recognition=null;
+ const startMic=document.getElementById('micStart'),stopMic=document.getElementById('micStop'),status=document.getElementById('micStatus');
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){startMic.disabled=true;status.textContent='Speech recognition is not supported here. Use the text box to save notes, or try current Google Chrome.'}
+ startMic.onclick=()=>{
+  if(!SR)return;
+  try{
+   recognition=new SR();recognition.lang='en-GB';recognition.interimResults=true;recognition.continuous=true;
+   let finalText='';
+   recognition.onstart=()=>{startMic.disabled=true;stopMic.disabled=false;status.textContent='Listening… speak clearly in English.'};
+   recognition.onresult=function(e){let interim='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)finalText+=e.results[i][0].transcript+' ';else interim+=e.results[i][0].transcript}manual.value=(finalText+interim).trim()};
+   recognition.onerror=function(e){status.textContent='Microphone issue: '+e.error+'. You can still type your notes.';startMic.disabled=false;stopMic.disabled=true};
+   recognition.onend=function(){startMic.disabled=false;stopMic.disabled=true;if(finalText.trim())status.textContent='Transcription captured. Select “Save typed answer” to add it to your notes.'};
+   recognition.start();
+  }catch(e){status.textContent='Could not start the microphone. Check Chrome site permissions.';startMic.disabled=false;stopMic.disabled=true}
+ };
+ stopMic.onclick=()=>{if(recognition)recognition.stop()};
+ app.querySelectorAll('[data-speaking-part]').forEach(b=>b.onclick=()=>{if(recognition)recognition.stop();state.speakingPart=+b.dataset.speakingPart;renderSpeakingWorkspace(p)});
+ document.getElementById('speakingNext').onclick=()=>{
+  if(recognition)recognition.stop();
+  if(manual.value.trim())state.speakingTranscript.push({who:solo?'You':(document.getElementById('speakerSelect')?.value||'Candidate 1'),text:manual.value.trim()});
+  if(idx<3){state.speakingPart++;renderSpeakingWorkspace(p)}
+  else{stopTimer();renderSpeakingWorkspace(p);const stage=app.querySelector('.speaking-stage');if(stage)stage.innerHTML='<h2>Practice complete</h2><p>You have completed all four parts of this Speaking practice.</p><p>Your saved answer notes are shown below. Review them and practise giving longer, clearer answers with reasons and examples.</p><div class="speaking-transcript">'+state.speakingTranscript.map(function(x){return '<div class="speaking-transcript-entry"><strong>'+safe(x.who)+'</strong><p>'+safe(x.text)+'</p></div>'}).join('')+'</div><div class="speaking-stage-actions"><button class="primary" id="speakingRestart">Start again</button><button class="secondary" id="speakingBackPapers">← Back to papers</button></div>';document.getElementById('speakingRestart').onclick=()=>{state.speakingPart=0;state.speakingTranscript=[];state.remaining=p.minutes*60;renderSpeakingWorkspace(p)};document.getElementById('speakingBackPapers').onclick=()=>{state.speakingCandidateMode=null;state.remaining=0;state.partIndex=0;renderPractice()};return}
+ };
+ document.getElementById('speakingChangeSetup').onclick=()=>{if(recognition)recognition.stop();stopTimer();state.speakingCandidateMode=null;state.remaining=0;renderSpeakingWorkspace(p)};
+ document.getElementById('speakingBackPapers').onclick=()=>{if(recognition)recognition.stop();stopTimer();state.speakingCandidateMode=null;state.remaining=0;state.partIndex=0;if(state.currentPaper>0){state.currentPaper--;renderPractice()}else renderDetail()};
  wireExamHeader();
+ if(!state.remaining)state.remaining=p.minutes*60;
  if(state.remaining>0&&!state.timerId){state.running=true;state.timerId=setInterval(()=>{state.remaining--;const el=document.getElementById('headerClock');if(el)el.textContent=fmt(state.remaining);if(state.remaining<=0)stopTimer()},1000)}
 }
 function renderPractice(){

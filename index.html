@@ -244,6 +244,26 @@ body.exam-active .listening-start-screen{position:fixed;inset:61px 0 0;z-index:6
 <body><div class="shell"><header class="topbar"><div class="brand"><div class="mark">C</div><span>Cambridge Prep</span></div><div class="top-tag">Your preparation. Your pace.</div></header><main id="app" aria-live="polite"></main><footer class="footer"><span>Cambridge Prep · Navigation prototype</span><span>An independent study aid, not affiliated with Cambridge English.</span></footer></div>
 <script>
 const state={level:null,mode:null,sections:new Set(),currentPaper:0,remaining:0,running:false,timerId:null,started:false,breakRemaining:600,pausedScreen:null,partIndex:0,questionIndex:0,answers:{},bookmarks:{},generatedText:{},contrast:'normal',textSize:'normal',hideTime:false,menuOpen:false,messageOpen:false,listeningStarted:false,listeningVolume:70,speakingCandidateMode:null};
+const PROGRESS_KEY='cambridgePrepProgressV1';
+const savedProgress=(()=>{try{return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}')}catch(e){return {}}})();
+state.answers=savedProgress.answers||{};
+state.bookmarks=savedProgress.bookmarks||{};
+state.history=Array.isArray(savedProgress.history)?savedProgress.history:[];
+state.sessionStartedAt=null;
+state.sessionSaved=false;
+function persistProgress(){
+ try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({answers:state.answers,bookmarks:state.bookmarks,history:state.history}));}catch(e){console.warn('Progress could not be saved in this browser.',e)}
+}
+function recordCompletedSession(){
+ if(state.sessionSaved)return;
+ const selected=papers();
+ const answered=Object.keys(state.answers).filter(k=>k.startsWith(state.level+'-'+state.mode+'-')&&String(state.answers[k]).trim()).length;
+ state.history.unshift({id:String(Date.now()),date:new Date().toISOString(),level:state.level,mode:state.mode,papers:selected.map(p=>p.name),answered:answered,completed:true});
+ state.history=state.history.slice(0,100);
+ state.sessionSaved=true;
+ persistProgress();
+}
+
 const app=document.getElementById('app');
 const modes=[
 {id:'exam',icon:'⏱',tone:'',title:'Exam Simulation',tag:'Real exam feel',desc:'Follow the official exam order and time limits. You can skip scheduled breaks.',foot:'Start exam simulation'},
@@ -281,7 +301,18 @@ else popup.innerHTML='';
 applyExamPrefs();
 }
 
-function renderHome(){stopTimer();document.body.classList.remove('exam-active','contrast-dark','contrast-yellow','text-large','text-xlarge','time-hidden');state.started=false;app.innerHTML='<section class="hero"><p class="eyebrow">Cambridge exam preparation</p><h1>Prepare for <span>B2 First.</span></h1><p>Practise the B2 First (FCE) exam with timed papers and a Cambridge Digital-inspired exam interface.</p></section><div class="step"><span class="dot">1</span><b>Your exam</b></div><div class="cards"><button class="card" data-level="B2"><div class="cardhead"><span class="symbol">B2</span><span class="pill">Upper-intermediate</span></div><h2>B2 First (FCE)</h2><p>Build confidence and prepare for the Cambridge B2 First examination.</p><div class="foot"><span>Continue with B2 First</span><span>↗</span></div></button></div>';app.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{state.level=b.dataset.level;renderModes()})}
+function renderHome(){stopTimer();document.body.classList.remove('exam-active','contrast-dark','contrast-yellow','text-large','text-xlarge','time-hidden');state.started=false;app.innerHTML='<section class="hero"><p class="eyebrow">Cambridge exam preparation</p><h1>Prepare for <span>B2 First.</span></h1><p>Practise the B2 First (FCE) exam with timed papers and a Cambridge Digital-inspired exam interface.</p></section><div class="step"><span class="dot">1</span><b>Your exam</b></div><div class="cards"><button class="card" data-level="B2"><div class="cardhead"><span class="symbol">B2</span><span class="pill">Upper-intermediate</span></div><h2>B2 First (FCE)</h2><p>Build confidence and prepare for the Cambridge B2 First examination.</p><div class="foot"><span>Continue with B2 First</span><span>↗</span></div></button></div><div class="actions"><button class="secondary" id="myProgress">My progress &amp; history →</button></div>';app.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{state.level=b.dataset.level;renderModes()});document.getElementById('myProgress').onclick=renderProgress}
+function renderProgress(){
+ stopTimer();
+ const history=state.history||[];
+ const completed=history.length;
+ const answered=Object.values(state.answers).filter(v=>String(v).trim()).length;
+ const latest=history.slice(0,8).map(item=>'<div class="choice"><span class="symbol green">✓</span><span><strong>'+esc(item.papers.join(', ')||'Practice session')+'</strong><small>'+new Date(item.date).toLocaleString()+' · '+item.mode+' · '+item.answered+' answers saved</small></span></div>').join('');
+ const body='<div class="choices"><div class="choice"><span class="symbol">✓</span><span><strong>'+completed+'</strong><small>Completed practice sessions</small></span></div><div class="choice"><span class="symbol green">'+answered+'</span><span><strong>'+answered+'</strong><small>Answers saved in this browser</small></span></div></div><h3 style="margin:26px 0 12px">Recent activity</h3>'+(latest||'<p class="muted">No completed sessions yet. Your activity will appear here after you finish a practice session.</p>')+'<div class="note">Progress is saved in this browser on this device. It is not yet synchronised between devices or separate student accounts. The current practice materials do not yet have a complete answer-key scoring system, so this overview tracks activity and saved answers rather than an official exam score.</div>';
+ frame('My progress','Your practice activity and saved work.',body,'<div class="actions"><button class="primary" id="progressBack">← Back to start</button><button class="secondary" id="clearProgress">Clear local progress</button></div>');
+ document.getElementById('progressBack').onclick=renderHome;
+ document.getElementById('clearProgress').onclick=()=>{if(confirm('Clear saved answers, bookmarks and practice history from this browser?')){state.answers={};state.bookmarks={};state.history=[];persistProgress();renderProgress()}};
+}
 function renderModes(){stopTimer();app.innerHTML='<section class="hero"><p class="eyebrow">Step 2 · '+'B2 First (FCE)'+'</p><h1>How would you like to <span>practise?</span></h1><p>Choose a mode. You can come back and change it at any time.</p></section><div class="cards">'+modes.map(m=>'<button class="card" data-mode="'+m.id+'"><div class="cardhead"><span class="symbol '+m.tone+'">'+m.icon+'</span><span class="pill">'+m.tag+'</span></div><h2>'+m.title+'</h2><p>'+m.desc+'</p><div class="foot"><span>'+m.foot+'</span><span>↗</span></div></button>').join('')+'</div><div class="actions"><button class="secondary" id="back">← Back to exam level</button></div>';app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;state.sections.clear();renderDetail()});document.getElementById('back').onclick=renderHome}
 function frame(title,subtitle,body,actions){app.innerHTML='<div class="step"><span class="dot">3</span><b>'+title+'</b></div><section class="panel"><h2>'+title+'</h2><p class="intro">'+subtitle+'</p>'+body+actions+'</section>'}
 function renderDetail(){const mode=modes.find(m=>m.id===state.mode);let body='';
@@ -291,7 +322,7 @@ frame(mode.title,'Selected exam: '+'B2 First (FCE)',body,'<div class="actions"><
 app.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>{const s=b.dataset.section;state.sections.has(s)?state.sections.delete(s):state.sections.add(s);renderDetail()});document.getElementById('back').onclick=renderModes;document.getElementById('continue').onclick=()=>{state.currentPaper=0;state.partIndex=0;state.remaining=0;state.breakRemaining=600;renderSummary(mode)}}
 function renderSummary(mode){let selected=papers();let body='<div class="choices"><div class="choice"><span class="symbol">'+state.level+'</span><span><strong>'+'B2 First (FCE)'+'</strong><small>Selected exam level</small></span></div><div class="choice"><span class="symbol green">'+mode.icon+'</span><span><strong>'+mode.title+'</strong><small>Selected practice mode</small></span></div></div><div class="choices" style="margin-top:16px">'+selected.map(p=>'<div class="choice"><span class="symbol">⏱</span><span><strong>'+p.name+'</strong><small>'+p.display+' · '+p.parts.length+' parts</small></span></div>').join('')+'</div><div class="note">Speaking durations are per pair. Listening duration is approximate. Timers are for practice guidance; actual exam-day arrangements may vary.</div>';
 frame('Your practice is ready','Review your papers before starting.',body,'<div class="actions"><button class="primary" id="start">Start practice →</button><button class="secondary" id="change">Change setup</button><button class="secondary" id="home">Back to start</button></div>');
-document.getElementById('start').onclick=()=>{state.currentPaper=0;state.partIndex=0;state.remaining=selected[0].minutes*60;state.started=true;renderPractice()};document.getElementById('change').onclick=renderDetail;document.getElementById('home').onclick=renderHome}
+document.getElementById('start').onclick=()=>{state.currentPaper=0;state.partIndex=0;state.remaining=selected[0].minutes*60;state.started=true;state.sessionStartedAt=Date.now();state.sessionSaved=false;renderPractice()};document.getElementById('change').onclick=renderDetail;document.getElementById('home').onclick=renderHome}
 function fmt(sec){const n=Math.max(0,sec);return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
 function partCount(paper,index){
 if(paper.id==='rue')return [8,8,8,6,6,6,10][index];
@@ -301,7 +332,7 @@ return [1,2,1,2][index];
 }
 function taskKey(paperIndex,partIndex,q){return state.level+'-'+state.mode+'-'+paperIndex+'-'+partIndex+'-'+q}
 function answerValue(key){return state.answers[key]||''}
-function setAnswer(key,value){state.answers[key]=value}
+function setAnswer(key,value){state.answers[key]=value;persistProgress()}
 function makeQuestion(paper,index,q){
 const n=q+1, key=taskKey(state.currentPaper,index,q), saved=answerValue(key);
 const rue=[
@@ -584,6 +615,6 @@ function startBreakClock(){state.timerId=setInterval(()=>{state.breakRemaining--
 state.running=true;startBreakClock();
 }
 function pauseExam(screen){document.body.classList.add('exam-active');stopTimer();state.pausedScreen=screen;app.innerHTML=examHeader('--:--')+'<div class="step"><span class="dot">Ⅱ</span><b>Exam paused</b></div><section class="panel exam-workspace"><p class="eyebrow">PAUSED</p><h2>Your exam is paused</h2><p class="intro">Your current paper and remaining time have been preserved. Resume when you are ready.</p><div class="actions"><button class="primary" id="resumeexam">Resume exam →</button><button class="secondary" id="endpaused">End practice</button></div></section>';wireExamHeader();document.getElementById('resumeexam').onclick=()=>{const screen=state.pausedScreen;state.pausedScreen=null;if(screen==='break'){renderBreak(false)}else{renderPractice()}};document.getElementById('endpaused').onclick=()=>{state.started=false;renderComplete()}}
-function renderComplete(){frame('Practice complete','You have reached the end of your selected papers.','<div class="note">This prototype includes paper names, part names and countdown timers. Exam questions and saved results have not been added.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
+function renderComplete(){recordCompletedSession();frame('Practice complete','You have reached the end of your selected papers.','<div class="note">Your practice activity and answers have been saved in this browser. A detailed score will be available when answer keys and marking are added.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
 renderHome();
 </script></body></html>

@@ -249,16 +249,18 @@ const savedProgress=(()=>{try{return JSON.parse(localStorage.getItem(PROGRESS_KE
 state.answers=savedProgress.answers||{};
 state.bookmarks=savedProgress.bookmarks||{};
 state.history=Array.isArray(savedProgress.history)?savedProgress.history:[];
+state.usedTestIds=Array.isArray(savedProgress.usedTestIds)?savedProgress.usedTestIds:[];
+state.selectedTestId=null;
 state.sessionStartedAt=null;
 state.sessionSaved=false;
 function persistProgress(){
- try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({answers:state.answers,bookmarks:state.bookmarks,history:state.history}));}catch(e){console.warn('Progress could not be saved in this browser.',e)}
+ try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({answers:state.answers,bookmarks:state.bookmarks,history:state.history,usedTestIds:state.usedTestIds}));}catch(e){console.warn('Progress could not be saved in this browser.',e)}
 }
 function recordCompletedSession(){
  if(state.sessionSaved)return;
  const selected=papers();
  const answered=Object.keys(state.answers).filter(k=>k.startsWith(state.level+'-'+state.mode+'-')&&String(state.answers[k]).trim()).length;
- state.history.unshift({id:String(Date.now()),date:new Date().toISOString(),level:state.level,mode:state.mode,papers:selected.map(p=>p.name),answered:answered,completed:true});
+ const pack=TEST_BANK.find(t=>t.id===state.selectedTestId);state.history.unshift({id:String(Date.now()),date:new Date().toISOString(),level:state.level,mode:state.mode,papers:selected.map(p=>p.name),answered:answered,completed:true,testId:state.selectedTestId||null,testTitle:pack?pack.title:'Unknown pack',testKind:pack?pack.kind:'unknown'});
  state.history=state.history.slice(0,100);
  state.sessionSaved=true;
  persistProgress();
@@ -274,6 +276,25 @@ B2:[
 {id:'writing',name:'Writing',minutes:80,display:'1 hour 20 minutes',parts:['Part 1 — Essay','Part 2 — Article, email/letter, report or review']},
 {id:'listening',name:'Listening',minutes:40,display:'About 40 minutes',parts:['Part 1 — Multiple choice','Part 2 — Sentence completion','Part 3 — Multiple matching','Part 4 — Multiple choice']}
 ]};
+// Local test bank. Add new authorised or original test packs here as separate IDs.
+const TEST_BANK=[
+ {id:'starter-original-001',title:'Starter practice set',source:'Original practice prototype',kind:'original',level:'B2',papers:['rue','writing','listening'],status:'available'}
+];
+function unusedTestPacks(){
+ return TEST_BANK.filter(t=>t.level===state.level&&!state.usedTestIds.includes(t.id));
+}
+function chooseRandomTestPack(){
+ const available=unusedTestPacks();
+ if(!available.length)return null;
+ return available[Math.floor(Math.random()*available.length)];
+}
+function reserveTestPack(pack){
+ if(!pack)return false;
+ state.selectedTestId=pack.id;
+ if(!state.usedTestIds.includes(pack.id))state.usedTestIds.push(pack.id);
+ persistProgress();
+ return true;
+}
 function papers(){return examData[state.level].filter(p=>state.mode!=='sections'||state.sections.has(p.name))}
 function stopTimer(){if(state.timerId)clearInterval(state.timerId);state.timerId=null;state.running=false}
 
@@ -311,7 +332,7 @@ function renderProgress(){
  const body='<div class="choices"><div class="choice"><span class="symbol">✓</span><span><strong>'+completed+'</strong><small>Completed practice sessions</small></span></div><div class="choice"><span class="symbol green">'+answered+'</span><span><strong>'+answered+'</strong><small>Answers saved in this browser</small></span></div></div><h3 style="margin:26px 0 12px">Recent activity</h3>'+(latest||'<p class="muted">No completed sessions yet. Your activity will appear here after you finish a practice session.</p>')+'<div class="note">Progress is saved in this browser on this device. It is not yet synchronised between devices or separate student accounts. The current practice materials do not yet have a complete answer-key scoring system, so this overview tracks activity and saved answers rather than an official exam score.</div>';
  frame('My progress','Your practice activity and saved work.',body,'<div class="actions"><button class="primary" id="progressBack">← Back to start</button><button class="secondary" id="clearProgress">Clear local progress</button></div>');
  document.getElementById('progressBack').onclick=renderHome;
- document.getElementById('clearProgress').onclick=()=>{if(confirm('Clear saved answers, bookmarks and practice history from this browser?')){state.answers={};state.bookmarks={};state.history=[];persistProgress();renderProgress()}};
+ document.getElementById('clearProgress').onclick=()=>{if(confirm('Clear saved answers, bookmarks and practice history from this browser?')){state.answers={};state.bookmarks={};state.history=[];state.usedTestIds=[];state.selectedTestId=null;persistProgress();renderProgress()}};
 }
 function renderModes(){stopTimer();app.innerHTML='<section class="hero"><p class="eyebrow">Step 2 · '+'B2 First (FCE)'+'</p><h1>How would you like to <span>practise?</span></h1><p>Choose a mode. You can come back and change it at any time.</p></section><div class="cards">'+modes.map(m=>'<button class="card" data-mode="'+m.id+'"><div class="cardhead"><span class="symbol '+m.tone+'">'+m.icon+'</span><span class="pill">'+m.tag+'</span></div><h2>'+m.title+'</h2><p>'+m.desc+'</p><div class="foot"><span>'+m.foot+'</span><span>↗</span></div></button>').join('')+'</div><div class="actions"><button class="secondary" id="back">← Back to exam level</button></div>';app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;state.sections.clear();renderDetail()});document.getElementById('back').onclick=renderHome}
 function frame(title,subtitle,body,actions){app.innerHTML='<div class="step"><span class="dot">3</span><b>'+title+'</b></div><section class="panel"><h2>'+title+'</h2><p class="intro">'+subtitle+'</p>'+body+actions+'</section>'}
@@ -320,9 +341,9 @@ if(state.mode==='exam')body='<div class="note">After each paper, a 10-minute bre
 else body='<p style="margin:0 0 14px;font-weight:750">Choose the papers you want to practise:</p><div class="sections">'+examData[state.level].map(p=>'<button class="section" data-section="'+p.name+'" aria-pressed="'+state.sections.has(p.name)+'">'+(state.sections.has(p.name)?'✓ ':'')+p.name+'<br><small style="color:var(--muted)">'+p.display+'</small></button>').join('')+'</div><div class="note">Choose one or more papers. Each selected paper includes its part names and a countdown timer.</div>';
 frame(mode.title,'Selected exam: '+'B2 First (FCE)',body,'<div class="actions"><button class="primary" id="continue" '+(state.mode==='sections'&&!state.sections.size?'disabled':'')+'>'+(state.mode==='sections'?'Confirm selection':'Continue')+' →</button><button class="secondary" id="back">← Back to modes</button></div>');
 app.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>{const s=b.dataset.section;state.sections.has(s)?state.sections.delete(s):state.sections.add(s);renderDetail()});document.getElementById('back').onclick=renderModes;document.getElementById('continue').onclick=()=>{state.currentPaper=0;state.partIndex=0;state.remaining=0;state.breakRemaining=600;renderSummary(mode)}}
-function renderSummary(mode){let selected=papers();let body='<div class="choices"><div class="choice"><span class="symbol">'+state.level+'</span><span><strong>'+'B2 First (FCE)'+'</strong><small>Selected exam level</small></span></div><div class="choice"><span class="symbol green">'+mode.icon+'</span><span><strong>'+mode.title+'</strong><small>Selected practice mode</small></span></div></div><div class="choices" style="margin-top:16px">'+selected.map(p=>'<div class="choice"><span class="symbol">⏱</span><span><strong>'+p.name+'</strong><small>'+p.display+' · '+p.parts.length+' parts</small></span></div>').join('')+'</div><div class="note">Speaking durations are per pair. Listening duration is approximate. Timers are for practice guidance; actual exam-day arrangements may vary.</div>';
+function renderSummary(mode){let selected=papers();const available=unusedTestPacks();const selectedPack=state.selectedTestId?TEST_BANK.find(t=>t.id===state.selectedTestId):null;let body='<div class="choices"><div class="choice"><span class="symbol">'+state.level+'</span><span><strong>'+'B2 First (FCE)'+'</strong><small>Selected exam level</small></span></div><div class="choice"><span class="symbol green">'+mode.icon+'</span><span><strong>'+mode.title+'</strong><small>Selected practice mode</small></span></div></div><div class="choices" style="margin-top:16px">'+selected.map(p=>'<div class="choice"><span class="symbol">⏱</span><span><strong>'+p.name+'</strong><small>'+p.display+' · '+p.parts.length+' parts</small></span></div>').join('')+'</div><div class="choice"><span class="symbol peach">▤</span><span><strong>Question bank</strong><small>'+(available.length)+' unused test pack(s) · '+TEST_BANK.length+' currently available · '+(selectedPack?esc(selectedPack.title):'A random unused pack will be selected when you start')+'</small></span></div><div class="note">The library currently contains one starter practice pack based on the app’s existing prototype tasks. It is not an official Cambridge paper. Additional official materials can only be added where their licence permits; original and generated packs will be labelled separately. Used packs are not selected again until the library is expanded.</div>';
 frame('Your practice is ready','Review your papers before starting.',body,'<div class="actions"><button class="primary" id="start">Start practice →</button><button class="secondary" id="change">Change setup</button><button class="secondary" id="home">Back to start</button></div>');
-document.getElementById('start').onclick=()=>{state.currentPaper=0;state.partIndex=0;state.remaining=selected[0].minutes*60;state.started=true;state.sessionStartedAt=Date.now();state.sessionSaved=false;renderPractice()};document.getElementById('change').onclick=renderDetail;document.getElementById('home').onclick=renderHome}
+document.getElementById('start').onclick=()=>{const pack=chooseRandomTestPack();if(!pack){alert('All test packs have been used. Add more authorised or original test packs to the library before starting a new non-repeating test.');return}reserveTestPack(pack);state.currentPaper=0;state.partIndex=0;state.remaining=selected[0].minutes*60;state.started=true;state.sessionStartedAt=Date.now();state.sessionSaved=false;renderPractice()};document.getElementById('change').onclick=renderDetail;document.getElementById('home').onclick=renderHome}
 function fmt(sec){const n=Math.max(0,sec);return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
 function partCount(paper,index){
 if(paper.id==='rue')return [8,8,8,6,6,6,10][index];

@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 1,
+  "qualification": "B2 First",
+  "paper": "Reading and Use of English",
+  "timeAllowedMinutes": 75,
+  "scoring": {
+    "reading": {
+      "parts": [
+        1,
+        5,
+        6,
+        7
+      ],
+      "maxMarks": 42
+    },
+    "useOfEnglish": {
+      "parts": [
+        2,
+        3,
+        4
+      ],
+      "maxMarks": 28
+    },
+    "total": 70
+  },
+  "status": "in_development",
+  "tests": [
+    {
+      "id": "b2-rue-test-01",
+      "title": "Candidate Test 1",
+      "status": "in_progress",
+      "parts": [
+        {
+          "part": 1,
+          "status": "in_progress"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-02",
+      "title": "Candidate Test 2",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-03",
+      "title": "Candidate Test 3",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-04",
+      "title": "Candidate Test 4",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-05",
+      "title": "Candidate Test 5",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-06",
+      "title": "Candidate Test 6",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-07",
+      "title": "Candidate Test 7",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-08",
+      "title": "Candidate Test 8",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-09",
+      "title": "Candidate Test 9",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "b2-rue-test-10",
+      "title": "Candidate Test 10",
+      "status": "planned",
+      "parts": [
+        {
+          "part": 1,
+          "status": "planned"
+        },
+        {
+          "part": 2,
+          "status": "planned"
+        },
+        {
+          "part": 3,
+          "status": "planned"
+        },
+        {
+          "part": 4,
+          "status": "planned"
+        },
+        {
+          "part": 5,
+          "status": "planned"
+        },
+        {
+          "part": 6,
+          "status": "planned"
+        },
+        {
+          "part": 7,
+          "status": "planned"
+        }
+      ]
+    }
+  ]
+}

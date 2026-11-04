@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "section": "use-of-english",
+  "part": 1,
+  "level": "B2 First",
+  "status": "pending_external_review",
+  "reviewNote": "Candidate items generated for independent review by Claude and Gemini before approval.",
+  "items": [
+    {
+      "id": "uoE-p1-001",
+      "title": "A library of things",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "C",
+        "A",
+        "B",
+        "B",
+        "A",
+        "B"
+      ]
+    },
+    {
+      "id": "uoE-p1-002",
+      "title": "The mystery of disappearing words",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "B",
+        "A",
+        "B",
+        "C",
+        "B",
+        "A",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-003",
+      "title": "Designing for everyone",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-004",
+      "title": "The appeal of night markets",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "C",
+        "A",
+        "A",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-005",
+      "title": "When memories are unreliable",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "A",
+        "A",
+        "D"
+      ]
+    },
+    {
+      "id": "uoE-p1-006",
+      "title": "The science of sleep",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-007",
+      "title": "Restoring a river",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "D",
+        "B",
+        "A",
+        "A",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-008",
+      "title": "Why people collect things",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "C",
+        "A",
+        "A",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-009",
+      "title": "Working with historical maps",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "C",
+        "A"
+      ]
+    },
+    {
+      "id": "uoE-p1-010",
+      "title": "The challenge of predicting the weather",
+      "status": "pending_review",
+      "answers": [
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "A",
+        "B",
+        "A"
+      ]
+    }
+  ]
+}

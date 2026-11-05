@@ -498,6 +498,7 @@ const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="read
 const right='<div class="question-scroll"><h3>Which person?</h3>'+data.questions.map((x,q)=>'<article class="mc-question"><h3><span class="number-box">'+(first+q)+'</span>'+esc(x[0])+bookmark(q)+'</h3><div class="match-options">'+['A','B','C','D'].map(v=>'<label class="match-option"><input type="radio" name="rue7-'+q+'" data-answer="'+key(q)+'" data-question="'+q+'" value="'+v+'" '+(ans(q)===v?'checked':'')+'> '+v+'</label>').join('')+'</div></article>').join('')+'</div>';
 return intro+split(left,right,'reading-split part-seven')
 }
+}
 function renderSpeakingWorkspace(p){
  document.body.classList.add('exam-active');
  const parts=[

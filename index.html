@@ -459,7 +459,7 @@ const first=paperQuestionStart(p,index),count=partCount(p,index),key=q=>taskKey(
 const bookmark=q=>'<button class="task-bookmark '+(state.bookmarks[key(q)]?'marked':'')+'" data-bookmark-question="'+q+'" aria-label="Bookmark question">♧</button>';
 const input=(q,ph='')=>'<input class="rue-gap-input" data-answer="'+key(q)+'" data-question="'+q+'" value="'+esc(ans(q))+'" placeholder="'+(ph||first+q)+'">';
 const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" tabindex="0"><button data-resize="less" aria-label="Narrow left column">‹</button><button data-resize="more" aria-label="Widen left column">›</button></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';
-if(p.id==='writing'){
+if(p.id==='rue'){
  const rueData=(window.RUE_TESTS||[]).find(t=>t.id===state.selectedTestId)||(window.RUE_TESTS||[])[0];
 if(!rueData)return intro+'<p>Candidate test data is unavailable.</p>';
 const data=rueData.parts[index+1];

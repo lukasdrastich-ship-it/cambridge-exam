@@ -388,9 +388,32 @@ function renderExamLibrary(tab='new'){
  app.querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>{const h=state.history.find(x=>x.id===b.dataset.review);if(!h)return;const lines=Object.entries(h.answersSnapshot||{}).map(([k,v])=>'<div class="choice"><span><strong>'+esc(k)+'</strong><small>'+esc(String(v))+'</small></span></div>').join('');frame('Saved answers',new Date(h.startedAt||h.date).toLocaleString(),lines||'<p>No saved answers were recorded for this attempt.</p>','<div class="actions"><button class="secondary" id="reviewBack">← Back to tests</button></div>');document.getElementById('reviewBack').onclick=()=>renderExamLibrary('done')});
  app.querySelectorAll('[data-print]').forEach(b=>b.onclick=()=>{const h=state.history.find(x=>x.id===b.dataset.print);if(!h)return;const content=Object.entries(h.answersSnapshot||{}).map(([k,v])=>'<p><b>'+esc(k)+'</b>: '+esc(String(v))+'</p>').join('');const w=window.open('','_blank');if(!w){alert('Please allow pop-ups to create a PDF printout.');return}w.document.write('<!doctype html><html><head><title>'+esc(h.testTitle)+'</title><style>body{font:14px Arial;padding:32px}h1{font-size:22px}</style></head><body><h1>'+esc(h.testTitle)+'</h1><p>Started: '+new Date(h.startedAt||h.date).toLocaleString()+'</p><p>Saved answers (not yet marked)</p>'+content+'</body></html>');w.document.close();w.print()});
 }
-function renderSummary(mode){let selected=papers();const available=unusedTestPacks();const selectedPack=state.selectedTestId?TEST_BANK.find(t=>t.id===state.selectedTestId):null;let body='<div class="choices"><div class="choice"><span class="symbol">'+state.level+'</span><span><strong>'+'B2 First (FCE)'+'</strong><small>Selected exam level</small></span></div><div class="choice"><span class="symbol green">'+mode.icon+'</span><span><strong>'+mode.title+'</strong><small>Selected practice mode</small></span></div></div><div class="choices" style="margin-top:16px">'+selected.map(p=>'<div class="choice"><span class="symbol">⏱</span><span><strong>'+p.name+'</strong><small>'+p.display+' · '+p.parts.length+' parts</small></span></div>').join('')+'</div><div class="choice"><span class="symbol peach">▤</span><span style="flex:1"><strong>Reading and Use of English candidate test</strong><small>Select one of the 10 original candidate tests for this practice session.</small><select id="candidateTestSelect" style="margin-top:8px;width:100%;padding:10px;border-radius:10px"><option value="">Choose a test…</option>'+TEST_BANK.map(t=>'<option value="'+esc(t.id)+'" '+(state.selectedTestId===t.id?'selected':'')+'>'+esc(t.title)+'</option>').join('')+'</select></span></div><div class="note">These are original candidate tests under development and should be reviewed before being treated as final Cambridge-style material.</div>';
-frame('Your practice is ready','Review your papers before starting.',body,'<div class="actions"><button class="primary" id="start">Start practice →</button><button class="secondary" id="change">Change setup</button><button class="secondary" id="home">Back to start</button></div>');
-document.getElementById('candidateTestSelect')?.addEventListener('change',e=>{state.selectedTestId=e.target.value||null});document.getElementById('start').onclick=()=>{const select=document.getElementById('candidateTestSelect');state.selectedTestId=select?.value||state.selectedTestId||TEST_BANK[0]?.id||null;const pack=chooseRandomTestPack();if(!pack){alert('Please select a Reading and Use of English candidate test.');return}const firstPaper=selected[0];if(!firstPaper){alert('Please select Reading and Use of English before starting practice.');return}reserveTestPack(pack);state.currentPaper=0;state.partIndex=0;state.questionIndex=0;state.remaining=firstPaper.minutes*60;state.started=true;state.sessionStartedAt=Date.now();state.sessionSaved=false;renderPractice()};document.getElementById('change').onclick=renderDetail;document.getElementById('home').onclick=renderHome}
+function renderSummary(mode){
+ let selected=papers();
+ const hasRue=selected.some(p=>p.id==='rue');
+ let body='<div class="choices"><div class="choice"><span class="symbol">'+state.level+'</span><span><strong>B2 First (FCE)</strong><small>Selected exam level</small></span></div><div class="choice"><span class="symbol green">'+mode.icon+'</span><span><strong>'+mode.title+'</strong><small>Selected practice mode</small></span></div></div><div class="choices" style="margin-top:16px">'+selected.map(p=>'<div class="choice"><span class="symbol">⏱</span><span><strong>'+p.name+'</strong><small>'+p.display+' · '+p.parts.length+' parts</small></span></div>').join('')+'</div>';
+ if(hasRue){
+   body+='<div class="choice"><span class="symbol peach">▤</span><span style="flex:1"><strong>Reading and Use of English candidate test</strong><small>Select one of the 10 original candidate tests for this practice session.</small><select id="candidateTestSelect" style="margin-top:8px;width:100%;padding:10px;border-radius:10px"><option value="">Choose a test…</option>'+TEST_BANK.map(t=>'<option value="'+esc(t.id)+'" '+(state.selectedTestId===t.id?'selected':'')+'>'+esc(t.title)+'</option>').join('')+'</select></span></div><div class="note">These are original candidate tests under development and should be reviewed before being treated as final Cambridge-style material.</div>';
+ }
+ frame('Your practice is ready','Review your papers before starting.',body,'<div class="actions"><button class="primary" id="start">Start practice →</button><button class="secondary" id="change">Change setup</button><button class="secondary" id="home">Back to start</button></div>');
+ document.getElementById('candidateTestSelect')?.addEventListener('change',e=>{state.selectedTestId=e.target.value||null});
+ document.getElementById('start').onclick=()=>{
+   const firstPaper=selected[0];
+   if(!firstPaper){alert('Please select at least one paper before starting practice.');return}
+   if(hasRue){
+     const select=document.getElementById('candidateTestSelect');
+     state.selectedTestId=select?.value||state.selectedTestId||TEST_BANK[0]?.id||null;
+     const pack=chooseRandomTestPack();
+     if(!pack){alert('Please select a Reading and Use of English candidate test.');return}
+     reserveTestPack(pack);
+   } else {
+     state.selectedTestId=null;
+   }
+   state.currentPaper=0;state.partIndex=0;state.questionIndex=0;state.remaining=firstPaper.minutes*60;state.started=true;state.sessionStartedAt=Date.now();state.sessionSaved=false;renderPractice();
+ };
+ document.getElementById('change').onclick=renderDetail;
+ document.getElementById('home').onclick=renderHome
+}
 function fmt(sec){const n=Math.max(0,sec);return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
 function partCount(paper,index){
 if(paper.id==='rue')return [8,8,8,6,6,6,10][index];

@@ -268,8 +268,7 @@ function recordCompletedSession(){
 
 const app=document.getElementById('app');
 const modes=[
-{id:'exam',icon:'⏱',tone:'',title:'Exam Simulation',tag:'Real exam feel',desc:'Follow the official exam order and time limits. You can skip scheduled breaks.',foot:'Start exam simulation'},
-{id:'sections',icon:'▤',tone:'peach',title:'Practice by Section',tag:'Choose papers',desc:'Choose the exam papers you want to practise.',foot:'Choose papers'}];
+{id:'sections',icon:'▤',tone:'peach',title:'Practice by Section',tag:'Choose a paper',desc:'Choose Reading and Use of English, Writing or Listening and practise the parts you need.',foot:'Choose a paper'}];
 const examData={
 B2:[
 {id:'rue',name:'Reading & Use of English',minutes:75,display:'1 hour 15 minutes',parts:['Part 1 — Multiple-choice cloze','Part 2 — Open cloze','Part 3 — Word formation','Part 4 — Key word transformations','Part 5 — Multiple choice','Part 6 — Gapped text','Part 7 — Multiple matching']},
@@ -278,7 +277,16 @@ B2:[
 ]};
 // Local test bank. Add new authorised or original test packs here as separate IDs.
 const TEST_BANK=[
- {id:'starter-original-001',title:'CambridgeExamSampleTest_1',source:'Original practice prototype',kind:'original',level:'B2',papers:['rue','writing','listening'],status:'available'}
+ {id:'b2-rue-original-01',title:'B2 Reading and Use of English Candidate Test 1',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-02',title:'B2 Reading and Use of English Candidate Test 2',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-03',title:'B2 Reading and Use of English Candidate Test 3',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-04',title:'B2 Reading and Use of English Candidate Test 4',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-05',title:'B2 Reading and Use of English Candidate Test 5',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-06',title:'B2 Reading and Use of English Candidate Test 6',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-07',title:'B2 Reading and Use of English Candidate Test 7',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-08',title:'B2 Reading and Use of English Candidate Test 8',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-09',title:'B2 Reading and Use of English Candidate Test 9',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'},
+ {id:'b2-rue-original-10',title:'B2 Reading and Use of English Candidate Test 10',source:'Original candidate material',kind:'original',level:'B2',papers:['rue'],status:'candidate'}
 ];
 function unusedTestPacks(){
  return TEST_BANK.filter(t=>t.level===state.level&&!state.usedTestIds.includes(t.id));

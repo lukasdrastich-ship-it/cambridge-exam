@@ -479,6 +479,7 @@ function questionStart(i){return [1,9,17,25,31,37,43][i]}
 function paperQuestionStart(p,i){if(p.id==='rue')return questionStart(i);if(p.id==='writing')return i===0?1:2;if(p.id==='listening')return [1,9,19,24][i];return i+1}
 function renderTaskBody(p,index){
 const first=paperQuestionStart(p,index),count=partCount(p,index),key=q=>taskKey(state.currentPaper,index,q),ans=q=>answerValue(key(q));
+const intro='<div class="task-instructions"><strong>Reading and Use of English · Part '+(index+1)+'</strong><p>Answer the questions carefully and use the navigation below to move between questions.</p></div>';
 const bookmark=q=>'<button class="task-bookmark '+(state.bookmarks[key(q)]?'marked':'')+'" data-bookmark-question="'+q+'" aria-label="Bookmark question">♧</button>';
 const input=(q,ph='')=>'<input class="rue-gap-input" data-answer="'+key(q)+'" data-question="'+q+'" value="'+esc(ans(q))+'" placeholder="'+(ph||first+q)+'">';
 const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" tabindex="0"><button data-resize="less" aria-label="Narrow left column">‹</button><button data-resize="more" aria-label="Widen left column">›</button></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';

@@ -257,11 +257,35 @@ state.sessionSaved=false;
 function persistProgress(){
  try{localStorage.setItem(PROGRESS_KEY,JSON.stringify({answers:state.answers,bookmarks:state.bookmarks,history:state.history,usedTestIds:state.usedTestIds}));}catch(e){console.warn('Progress could not be saved in this browser.',e)}
 }
+function scoreCurrentRue(){
+ const test=(window.RUE_TESTS||[]).find(t=>t.id===state.selectedTestId);if(!test)return null;
+ const selected=papers();const paperIndex=selected.findIndex(p=>p.id==='rue');if(paperIndex<0)return null;
+ const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
+ let reading=0,use=0,details=[];
+ for(let part=0;part<7;part++){
+  const d=test.parts[part+1], count=partCount({id:'rue'},part);
+  let correct=0,marks=0;
+  for(let q=0;q<count;q++){
+   const got=norm(answerValue(taskKey(paperIndex,part,q)));let expected='';
+   if(part===0)expected=norm(d.answers[q]);
+   else if(part===1)expected=norm(d.answers[q]);
+   else if(part===2)expected=norm(d.answers[q]);
+   else if(part===3)expected=norm(d.items[q].answer);
+   else if(part===4)expected=norm(d.questions[q][2]);
+   else if(part===5)expected=norm(d.answers[q]);
+   else expected=norm(d.questions[q][1]);
+   if(got===expected){correct++;marks+=(part===3||part===4||part===5?2:1);}
+  }
+  details.push({part:part+1,correct,marks,max:[8,8,8,12,12,12,10][part]});
+  if([0,4,5,6].includes(part))reading+=marks;else use+=marks;
+ }
+ return {reading,useOfEnglish:use,total:reading+use,details};
+}
 function recordCompletedSession(){
  if(state.sessionSaved)return;
  const selected=papers();
  const answered=Object.keys(state.answers).filter(k=>k.startsWith(state.level+'-'+state.mode+'-')&&String(state.answers[k]).trim()).length;
- const pack=TEST_BANK.find(t=>t.id===state.selectedTestId);state.history.unshift({id:String(Date.now()),date:new Date().toISOString(),level:state.level,mode:state.mode,papers:selected.map(p=>p.name),answered:answered,completed:true,testId:state.selectedTestId||null,testTitle:pack?pack.title:'Unknown pack',testKind:pack?pack.kind:'unknown',startedAt:state.sessionStartedAt||Date.now(),scores:null,answersSnapshot:Object.fromEntries(Object.entries(state.answers).filter(([k])=>k.startsWith(state.level+'-'+state.mode+'-')))});
+ const pack=TEST_BANK.find(t=>t.id===state.selectedTestId);state.history.unshift({id:String(Date.now()),date:new Date().toISOString(),level:state.level,mode:state.mode,papers:selected.map(p=>p.name),answered:answered,completed:true,testId:state.selectedTestId||null,testTitle:pack?pack.title:'Unknown pack',testKind:pack?pack.kind:'unknown',startedAt:state.sessionStartedAt||Date.now(),scores:scoreCurrentRue(),answersSnapshot:Object.fromEntries(Object.entries(state.answers).filter(([k])=>k.startsWith(state.level+'-'+state.mode+'-')))});
  state.history=state.history.slice(0,100);
  state.sessionSaved=true;
  persistProgress();
@@ -594,6 +618,6 @@ function startBreakClock(){state.timerId=setInterval(()=>{state.breakRemaining--
 state.running=true;startBreakClock();
 }
 function pauseExam(screen){document.body.classList.add('exam-active');stopTimer();state.pausedScreen=screen;app.innerHTML=examHeader('--:--')+'<div class="step"><span class="dot">Ⅱ</span><b>Exam paused</b></div><section class="panel exam-workspace"><p class="eyebrow">PAUSED</p><h2>Your exam is paused</h2><p class="intro">Your current paper and remaining time have been preserved. Resume when you are ready.</p><div class="actions"><button class="primary" id="resumeexam">Resume exam →</button><button class="secondary" id="endpaused">End practice</button></div></section>';wireExamHeader();document.getElementById('resumeexam').onclick=()=>{const screen=state.pausedScreen;state.pausedScreen=null;if(screen==='break'){renderBreak(false)}else{renderPractice()}};document.getElementById('endpaused').onclick=()=>{state.started=false;renderComplete()}}
-function renderComplete(){recordCompletedSession();frame('Practice complete','You have reached the end of your selected papers.','<div class="note">Your practice activity and answers have been saved in this browser. A detailed score will be available when answer keys and marking are added.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
+function renderComplete(){recordCompletedSession();const score=scoreCurrentRue();const report=score?'<div class="choice"><span class="symbol green">✓</span><span><strong>Reading: '+score.reading+' / 42</strong><small>Parts 1, 5, 6 and 7</small><strong>Use of English: '+score.useOfEnglish+' / 28</strong><small>Parts 2, 3 and 4</small><strong>Total: '+score.total+' / 70</strong></span></div>':'<div class="note">Answers have been saved. Detailed marking is available for the candidate Reading and Use of English tests.</div>';frame('Practice complete','You have reached the end of your selected papers.',report+'<div class="note">This is a practice raw-mark result for original candidate material, not an official Cambridge English Scale score.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
 renderHome();
 </script></body></html>

@@ -28,3 +28,5 @@ Open `index.html` in a modern browser. No build step or dependencies are require
 ## Disclaimer
 
 An independent study aid, not affiliated with Cambridge English.
+
+<!-- Deployment refresh: trigger a fresh GitHub Pages build after a stuck dynamic run. -->

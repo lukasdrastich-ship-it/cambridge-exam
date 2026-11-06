@@ -86,7 +86,7 @@ body.exam-active .gap-choice{min-width:145px;padding:2px 8px;background:#fff;bor
 body.exam-active .gap-choice-menu{position:absolute;z-index:15;top:100%;left:0;min-width:190px;background:#fff;border:1px solid #b8c0c5;box-shadow:0 4px 14px #0002}
 body.exam-active .gap-choice-menu button{display:block;width:100%;border:0;background:white;padding:7px 10px;text-align:left;color:#17191d}
 body.exam-active .gap-choice-menu button:hover{background:#c5e1f7}
-body.exam-active .rue-gap-input{width:145px;height:23px;border:1px solid #aeb8c0;border-radius:2px;padding:2px 6px;text-align:center;background:#fff;color:#111;margin:3px}
+body.exam-active .inline-keyword{font-weight:700;color:#4b535a;margin-left:8px;font-size:.82rem}\nbody.exam-active .rue-gap-input{width:145px;height:23px;border:1px solid #aeb8c0;border-radius:2px;padding:2px 6px;text-align:center;background:#fff;color:#111;margin:3px}
 body.exam-active .transform-list{height:calc(100% - 100px);overflow:auto;padding:8px 12px}
 body.exam-active .transform-item{position:relative;padding:12px 36px 16px 8px;border-bottom:1px solid #d8dcdf;max-width:820px}
 body.exam-active .transform-item p{margin:8px 0}
@@ -261,15 +261,17 @@ function makeTest(i){
   ['contributing','belonging','relating','responding'],
   ['rid','free','clear','out']
  ];
- const p1answers=[0,1,2,3,1,2,3,0].map((_,q)=>letters[(4-((shift+q)%4))%4]);
- const p1Text=`In many towns, ${topic} are encouraging people to take a different approach to everyday problems. Rather than replacing something immediately, ${people} look for practical ways to extend its useful life. Supporters argue that this can reduce the amount of ${problem} that ends up being wasted, while also giving participants a stronger sense of connection to their community. Of course, not every attempt is successful: replacement parts can be difficult to obtain and some items are damaged beyond repair. Even so, organisers say that participants become better equipped to deal with similar situations in the future. As awareness of the environmental impact of unnecessary consumption grows, these projects are increasingly seen as contributing to wider changes in behaviour. For many people, the social side is equally important, since strangers can work together and exchange ideas. This sense of cooperation is one reason why people are reluctant to get rid of projects that still have potential.`;
+ const p1answers=p1opts.map((o,q)=>{const correct=[0,1,2,3,1,2,3,0][q];const r=(shift+q)%4;return letters[(correct-r+4)%4]});
+ const p1Text=`In many towns, ${topic} are encouraging people to take a different [[0]] to everyday problems. Rather than throwing something [[1]], ${people} look for practical ways to extend its useful life. Some objects have to be [[2]], but many can be repaired with patience and the right tools. Replacement parts can be difficult to [[3]], so organisers often share contacts and advice. Over time, volunteers become better [[4]] to deal with similar situations. As awareness of the environmental [[5]] of unnecessary consumption grows, these projects are increasingly seen as [[6]] to wider changes in behaviour. For many people, the social side is equally important, since working together can help them get [[7]] of the idea that every problem has to be solved alone.`;
  const p2answers=['on','out','with','our','for','to','that','along'];
+ const p2Text=`People often claim to dislike uncertainty, yet many enjoyable experiences depend [[0]] it. A story whose ending can be guessed easily is unlikely to stand [[1]]. When events turn out differently from expectations, we have to cope [[2]] the unexpected. We may think we have considered every possibility, only to discover that something escaped [[3]] notice. This is one reason why uncertainty can be enjoyable: curiosity can continue [[4]] much longer than certainty. The most satisfying experiences provide enough information [[5]] create expectations, but not so much [[6]] there is nothing left to discover. Looking back, we often realise that the clues were there all [[7]].`;
+ const p3=['on','out','with','our','for','to','that','along'];
  const p2Text=`People often claim to dislike uncertainty, yet many enjoyable experiences depend on it. A story whose ending can be guessed easily is unlikely to leave much of an impression. When events turn out differently from our expectations, we pay closer attention. Not every surprise is pleasant, of course; the difference often depends on whether we feel able to cope with the situation. We may think we have considered every possibility, only to discover that something escaped our notice. This is why uncertainty can be appealing: we can imagine several outcomes without knowing for certain which will occur. However, if there is too little information, curiosity may give way to frustration. The most satisfying experiences provide enough information to create expectations, but not so much that there is nothing left to discover. Looking back, we often realise that the clues were there all along.`;
  const p3=[
   ['definition','DEFINE'],['environmental','ENVIRONMENT'],['emotional','EMOTION'],['impulsive','IMPULSE'],
   ['obsessive','OBSESS'],['meaningful','MEANING'],['freedom','FREE'],['considerably','CONSIDER']
  ];
- const p3Text=`A growing number of people have become interested in ${topic}. There is no single definition of what this movement should involve. For some, the motivation is environmental; for others, the attraction is more emotional. Experts warn against impulsive decisions and against becoming obsessive about following a particular lifestyle. The aim should be to make meaningful choices and to gain greater freedom from unnecessary possessions. Personal circumstances can vary considerably, so no single solution is right for everyone.`;
+ const p3Text=`A growing number of people have become interested in ${topic}. There is no single [[0]] of what this movement should involve. For some, the motivation is [[1]]; for others, the attraction is more [[2]]. Experts warn against [[3]] decisions and against becoming [[4]] about following a particular lifestyle. The aim should be to make [[5]] choices and to gain greater [[6]] from unnecessary possessions. Personal circumstances can vary [[7]], so no single solution is right for everyone.`;
  const trans=[
   ['I had never seen such an impressive collection before.','MOST','It was the most impressive collection I had ever seen.','the most impressive collection'],
   ['It was not necessary for Mia to attend the meeting.','NEED','Mia did not need to attend the meeting.','did not need to attend'],
@@ -574,19 +576,17 @@ if(!rueData)return intro+'<p>Candidate test data is unavailable.</p>';
 const data=rueData.parts[index+1];
 if(index===0){
  const opts=data.options;
- const chunks=data.text.split('. ').filter(Boolean);
- const body=chunks.map((s,q)=>q<8?'<p>'+esc(s)+'. <span class="gap-choice-wrap"><span class="gap-choice-anchor"><button class="gap-choice" data-gap-open="'+q+'">'+(ans(q)?esc(ans(q)):'Question '+(first+q))+'</button><button class="gap-choice-clear" data-gap-clear="'+q+'" aria-label="Clear answer">×</button></span><span class="gap-choice-menu" id="gapMenu'+q+'" hidden>'+opts[q].map((v,k)=>'<button data-gap-value="'+q+'" data-value="'+String.fromCharCode(65+k)+'">'+String.fromCharCode(65+k)+' · '+esc(v)+'</button>').join('')+'</span></span></p>':'<p>'+esc(s)+'.</p>').join('');
+ const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return '<span class="gap-choice-wrap"><span class="gap-choice-anchor"><button class="gap-choice" data-gap-open="'+q+'">'+(ans(q)?esc(ans(q)):'Question '+(first+q))+'</button><button class="gap-choice-clear" data-gap-clear="'+q+'" aria-label="Clear answer" '+(ans(q)?'':'hidden')+'>×</button></span><span class="gap-choice-menu" id="gapMenu'+q+'" hidden>'+opts[q].map((v,k)=>'<button data-gap-value="'+q+'" data-value="'+String.fromCharCode(65+k)+'">'+String.fromCharCode(65+k)+' · '+esc(v)+'</button>').join('')+'</span></span>';});
  return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
 }
 if(index===1){
- const seg=data.text.split('. ').filter(Boolean);
- return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+seg.map((s,q)=>q<8?'<p>'+esc(s)+' <span class="number-box">'+(first+q)+'</span> '+input(q,'One word')+'</p>':'<p>'+esc(s)+'.</p>').join('')+'</article>';
+ const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return '<span class="number-box">'+(first+q)+'</span>'+input(q,'One word');});
+ return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
 }
 if(index===2){
- const seg=data.text.split('. ').filter(Boolean);
- const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+seg.map((s,q)=>q<8?'<p>'+esc(s)+' <span class="number-box">'+(first+q)+'</span> '+input(q,'Your word')+'</p>':'<p>'+esc(s)+'.</p>').join('')+'</article>';
- const right='<h3>Keyword List</h3><ol class="keyword-list">'+data.words.map((w,q)=>'<li>'+(first+q)+'. '+esc(w[1])+'</li>').join('')+'</ol>';
- return intro+split(left,right,'wordformation-layout');
+ const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return '<span class="number-box">'+(first+q)+'</span>'+input(q,'Your word')+' <span class="inline-keyword">'+esc(data.words[q][1])+'</span>';});
+ const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
+ return intro+left;
 }
 if(index===3){
  return intro+'<div class="transform-list">'+data.items.map((x,q)=>'<article class="transform-item"><strong>'+(first+q)+'</strong><p>'+esc(x.a)+'</p><b>'+esc(x.keyword)+'</b><p>'+esc(x.b)+'</p>'+input(q,'Your answer')+bookmark(q)+'</article>').join('')+'</div>';

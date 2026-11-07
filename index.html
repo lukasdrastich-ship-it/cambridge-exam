@@ -86,7 +86,8 @@ body.exam-active .gap-choice{min-width:145px;padding:2px 8px;background:#fff;bor
 body.exam-active .gap-choice-menu{position:absolute;z-index:15;top:100%;left:0;min-width:190px;background:#fff;border:1px solid #b8c0c5;box-shadow:0 4px 14px #0002}
 body.exam-active .gap-choice-menu button{display:block;width:100%;border:0;background:white;padding:7px 10px;text-align:left;color:#17191d}
 body.exam-active .gap-choice-menu button:hover{background:#c5e1f7}
-body.exam-active .inline-keyword{font-weight:700;color:#4b535a;margin-left:8px;font-size:.82rem}\nbody.exam-active .rue-gap-input{width:145px;height:23px;border:1px solid #aeb8c0;border-radius:2px;padding:2px 6px;text-align:center;background:#fff;color:#111;margin:3px}
+body.exam-active .inline-keyword{font-weight:700;color:#4b535a;margin-left:8px;font-size:.82rem}
+body.exam-active .rue-gap-input{width:145px;height:23px;border:1px solid #aeb8c0;border-radius:2px;padding:2px 6px;text-align:center;background:#fff;color:#111;margin:3px}
 body.exam-active .transform-list{height:calc(100% - 100px);overflow:auto;padding:8px 12px}
 body.exam-active .transform-item{position:relative;padding:12px 36px 16px 8px;border-bottom:1px solid #d8dcdf;max-width:820px}
 body.exam-active .transform-item p{margin:8px 0}
@@ -265,9 +266,7 @@ function makeTest(i){
  const p1Text=`In many towns, ${topic} are encouraging people to take a different [[0]] to everyday problems. Rather than throwing something [[1]], ${people} look for practical ways to extend its useful life. Some objects have to be [[2]], but many can be repaired with patience and the right tools. Replacement parts can be difficult to [[3]], so organisers often share contacts and advice. Over time, volunteers become better [[4]] to deal with similar situations. As awareness of the environmental [[5]] of unnecessary consumption grows, these projects are increasingly seen as [[6]] to wider changes in behaviour. For many people, the social side is equally important, since working together can help them get [[7]] of the idea that every problem has to be solved alone.`;
  const p2answers=['on','out','with','our','for','to','that','along'];
  const p2Text=`People often claim to dislike uncertainty, yet many enjoyable experiences depend [[0]] it. A story whose ending can be guessed easily is unlikely to stand [[1]]. When events turn out differently from expectations, we have to cope [[2]] the unexpected. We may think we have considered every possibility, only to discover that something escaped [[3]] notice. This is one reason why uncertainty can be enjoyable: curiosity can continue [[4]] much longer than certainty. The most satisfying experiences provide enough information [[5]] create expectations, but not so much [[6]] there is nothing left to discover. Looking back, we often realise that the clues were there all [[7]].`;
- const p3=['on','out','with','our','for','to','that','along'];
- const p2Text=`People often claim to dislike uncertainty, yet many enjoyable experiences depend on it. A story whose ending can be guessed easily is unlikely to leave much of an impression. When events turn out differently from our expectations, we pay closer attention. Not every surprise is pleasant, of course; the difference often depends on whether we feel able to cope with the situation. We may think we have considered every possibility, only to discover that something escaped our notice. This is why uncertainty can be appealing: we can imagine several outcomes without knowing for certain which will occur. However, if there is too little information, curiosity may give way to frustration. The most satisfying experiences provide enough information to create expectations, but not so much that there is nothing left to discover. Looking back, we often realise that the clues were there all along.`;
- const p3=[
+ const p3=[const p3=[
   ['definition','DEFINE'],['environmental','ENVIRONMENT'],['emotional','EMOTION'],['impulsive','IMPULSE'],
   ['obsessive','OBSESS'],['meaningful','MEANING'],['freedom','FREE'],['considerably','CONSIDER']
  ];
@@ -282,14 +281,15 @@ function makeTest(i){
  ];
  const p5Title=`Places and people: photographing ${object}`;
  const p5Passage=`When photographer Elena first became interested in ${topic}, she had no intention of beginning a long-term project. She had taken her camera almost as an afterthought, but what she saw affected her unexpectedly. The most striking feature was the contrast between visible change and small signs of ordinary life. Over time, her work attracted attention online, which created a problem she had not anticipated. People began asking for exact locations and access details. Elena realised she had to be careful: some places were dangerous and others were private. She also became uncomfortable with the idea that a location should be treated simply as an attractive background. Every site had a human history. For this reason, she now researches carefully before taking photographs, searches local archives and speaks to people who remember events connected with the place. These conversations often change what she notices. Details that once seemed unimportant can suddenly become meaningful. Elena believes this development in her understanding is what keeps the project interesting.`;
- const p5Qs=[
-  ['What first interested Elena?',['an unexpected contrast','a planned architectural study','a friend’s photography skills','a technical challenge'],'A'],
-  ['What problem followed the project’s popularity?',['She received requests for information that could be misused.','She could no longer find suitable locations.','Other photographers copied her work.','Her equipment became too expensive.'],'A'],
-  ['Why does Elena research each location?',['To understand the human history behind it.','To guarantee permission to enter it.','To discover the cheapest route there.','To avoid speaking to local people.'],'A'],
-  ['What can conversations change?',['The significance she gives to details.','The age of the buildings.','The quality of her camera.','The number of photographs she takes.'],'A'],
-  ['What keeps the project interesting for Elena?',['Her developing understanding of the places.','The competition with other photographers.','The possibility of becoming famous.','The speed of online publishing.'],'A'],
-  ['Which summary best reflects the text?',['Research has made her work more thoughtful.','Photography has become less important to her.','She prefers modern buildings to old ones.','She avoids locations with difficult histories.'],'A']
- ];
+ const p5Base=[
+ ['What first interested Elena?',['an unexpected contrast','a planned architectural study','a friend’s photography skills','a technical challenge']],
+ ['What problem followed the project’s popularity?',['She received requests for information that could be misused.','She could no longer find suitable locations.','Other photographers copied her work.','Her equipment became too expensive.']],
+ ['Why does Elena research each location?',['To understand the human history behind it.','To guarantee permission to enter it.','To discover the cheapest route there.','To avoid speaking to local people.']],
+ ['What can conversations change?',['The significance she gives to details.','The age of the buildings.','The quality of her camera.','The number of photographs she takes.']],
+ ['What keeps the project interesting for Elena?',['Her developing understanding of the places.','The competition with other photographers.','The possibility of becoming famous.','The speed of online publishing.']],
+ ['Which summary best reflects the text?',['Research has made her work more thoughtful.','Photography has become less important to her.','She prefers modern buildings to old ones.','She avoids locations with difficult histories.']]
+];
+ const p5Qs=p5Base.map(([question,options],q)=>{const shift=(i+q)%4;const mixed=options.map((_,k)=>options[(k-shift+4)%4]);const correct=String.fromCharCode(65+shift);return [question,mixed,correct];});
  const sentences=[
   'That discovery changed the way I organised every practice session.',
   'At first, however, I assumed that spending more time would automatically produce better results.',
@@ -570,6 +570,15 @@ const intro='<div class="task-instructions"><strong>Reading and Use of English �
 const bookmark=q=>'<button class="task-bookmark '+(state.bookmarks[key(q)]?'marked':'')+'" data-bookmark-question="'+q+'" aria-label="Bookmark question">♧</button>';
 const input=(q,ph='')=>'<input class="rue-gap-input" data-answer="'+key(q)+'" data-question="'+q+'" value="'+esc(ans(q))+'" placeholder="'+(ph||first+q)+'">';
 const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" tabindex="0"><button data-resize="less" aria-label="Narrow left column">‹</button><button data-resize="more" aria-label="Widen left column">›</button></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';
+if(p.id==='writing'){
+ const v=ans(0)||'';
+ if(index===0)return '<div class="task-instructions"><strong>Writing · Part 1</strong><p>Write an essay. Use the notes and support your ideas with reasons and examples.</p></div><article class="writing-task"><h2>Part 1 · Essay</h2><textarea class="writing-response" data-answer="'+key(0)+'" data-count="writingCount0" placeholder="Write your answer here...">'+esc(v)+'</textarea><p id="writingCount0">Words: '+(v.trim()?v.trim().split(/\s+/).length:0)+'</p></article>';
+ return '<div class="task-instructions"><strong>Writing · Part 2</strong><p>Choose one task and write your response.</p></div><article class="writing-task"><h2>Part 2 · Choose a task</h2><textarea class="writing-response" data-answer="'+key(0)+'" data-count="writingCount1" placeholder="Write your answer here...">'+esc(v)+'</textarea><p id="writingCount1">Words: '+(v.trim()?v.trim().split(/\s+/).length:0)+'</p></article>';
+}
+if(p.id==='listening'){
+ const questions=Array.from({length:count},(_,q)=>{const value=ans(q);return '<article class="mc-question"><h3><span class="number-box">'+(first+q)+'</span> Listening question '+(first+q)+'</h3><p>Audio is not available yet.</p>'+['A','B','C','D'].map(letter=>'<label class="mc-option"><input type="radio" name="listening-'+index+'-'+q+'" data-answer="'+key(q)+'" value="'+letter+'" '+(value===letter?'checked':'')+'><span>'+letter+'</span></label>').join('')+'</article>';}).join('');
+ return '<div class="task-instructions"><strong>Listening · Part '+(index+1)+'</strong><p>Audio is not available yet.</p></div><div class="question-scroll">'+questions+'</div>';
+}
 if(p.id==='rue'){
  const rueData=(window.RUE_TESTS||[]).find(t=>t.id===state.selectedTestId)||(window.RUE_TESTS||[])[0];
 if(!rueData)return intro+'<p>Candidate test data is unavailable.</p>';
@@ -598,9 +607,9 @@ if(index===4){
  return intro+split(left,right,'reading-split part-five');
 }
 if(index===5){
- const displayed=data.paragraphs.map((x,q)=>'<p>'+esc(x)+' '+(q<6?'<button class="text-gap" data-text-gap="'+q+'">['+(first+q)+']</button>':'')+'</p>').join('');
+ const displayed=data.paragraphs.map((x,q)=>{const saved=ans(q);const sentence=saved?data.sentences[saved.charCodeAt(0)-65]:'';return '<p>'+esc(x)+' '+(q<6?'<button class="text-gap '+(saved?'filled':'')+'" data-drop-gap="'+q+'">'+(saved?saved+'. '+esc(sentence):'['+(first+q)+']')+'</button>':'')+'</p>';}).join('');
  const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="reading-passage">'+displayed+'</article>';
- const right='<div class="sentence-bank"><h3>Sentences A–G</h3>'+data.sentences.map((x,i)=>'<button class="sentence-choice" data-sentence="'+String.fromCharCode(65+i)+'" draggable="true">'+String.fromCharCode(65+i)+'. '+esc(x)+'</button>').join('')+'<p class="sentence-hint">Select a sentence, then click the gap where you want to insert it.</p><div class="sentence-status" aria-live="polite"></div></div>';
+ const right='<div class="sentence-bank"><h3>Sentences A–G</h3>'+data.sentences.map((x,i)=>{const letter=String.fromCharCode(65+i);const used=data.paragraphs.slice(0,6).some((_,q)=>ans(q)===letter);return '<button class="sentence-choice '+(used?'used':'')+'" data-sentence="'+letter+'" draggable="'+(!used)+'" '+(used?'disabled':'')+'>'+letter+'. '+esc(x)+'</button>';}).join('')+'<p class="sentence-hint">Select a sentence, then click the gap where you want to insert it.</p><div class="sentence-status" aria-live="polite"></div></div>';
  return intro+split(left,right,'reading-split part-six');
 }
 const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="reading-passage">'+data.people.map(x=>'<p><strong>'+esc(x[0])+'</strong> — '+esc(x[1])+'</p>').join('')+'</article>';
@@ -699,11 +708,16 @@ app.querySelectorAll('[data-gap-open]').forEach(b=>b.onclick=()=>{const q=+b.dat
 app.querySelectorAll('[data-gap-value]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapValue,k=taskKey(state.currentPaper,partIndex,q),anchor=app.querySelector('[data-gap-open="'+q+'"]'),clear=app.querySelector('[data-gap-clear="'+q+'"]');setAnswer(k,b.dataset.value);anchor.textContent=b.textContent;clear.hidden=false;document.getElementById('gapMenu'+q).hidden=true;const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.add('answered')});
 app.querySelectorAll('[data-gap-clear]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapClear;setAnswer(taskKey(state.currentPaper,partIndex,q),'');app.querySelector('[data-gap-open="'+q+'"]').textContent='Question '+(first+q);const menu=document.getElementById('gapMenu'+q);if(menu)menu.hidden=true;const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.remove('answered');const target=app.querySelector('[data-gap-open="'+q+'"]');if(target)target.focus()});
 let draggedSentence='';
+let selectedSentence='';
 app.querySelectorAll('[data-sentence]').forEach(b=>{
+ b.addEventListener('click',()=>{if(b.disabled)return;app.querySelectorAll('[data-sentence]').forEach(x=>x.classList.remove('selected'));selectedSentence=selectedSentence===b.dataset.sentence?'':b.dataset.sentence;if(selectedSentence)b.classList.add('selected');});
  b.addEventListener('dragstart',e=>{if(b.disabled)return;draggedSentence=b.dataset.sentence;e.dataTransfer.setData('text/plain',draggedSentence);e.dataTransfer.effectAllowed='move';b.classList.add('dragging')});
  b.addEventListener('dragend',()=>b.classList.remove('dragging'));
 });
+function insertSentence(el,letter){if(!/^[A-G]$/.test(letter))return;const q=+el.dataset.dropGap;const k=taskKey(state.currentPaper,partIndex,q);const sentence=app.querySelector('[data-sentence="'+letter+'"]');if(!sentence||sentence.disabled)return;setAnswer(k,letter);el.textContent=letter+'. '+sentence.textContent.slice(3);el.classList.add('filled');sentence.classList.add('used');sentence.disabled=true;sentence.draggable=false;selectedSentence='';draggedSentence='';app.querySelectorAll('[data-sentence]').forEach(x=>x.classList.remove('selected'));}
+function clearSentence(el){const q=+el.dataset.dropGap;const k=taskKey(state.currentPaper,partIndex,q);const letter=answerValue(k);if(letter){const sentence=app.querySelector('[data-sentence="'+letter+'"]');if(sentence){sentence.classList.remove('used');sentence.disabled=false;sentence.draggable=true;}}setAnswer(k,'');el.textContent='['+(first+q)+']';el.classList.remove('filled');}
 app.querySelectorAll('[data-drop-gap]').forEach(el=>{
+ el.addEventListener('click',()=>{if(el.classList.contains('filled'))clearSentence(el);else if(selectedSentence)insertSentence(el,selectedSentence);});
  el.addEventListener('dragover',e=>{if(draggedSentence||e.dataTransfer.types.includes('text/plain')){e.preventDefault();e.dataTransfer.dropEffect='move';el.classList.add('drop-target')}});
  el.addEventListener('dragleave',()=>el.classList.remove('drop-target'));
  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drop-target');const letter=e.dataTransfer.getData('text/plain')||draggedSentence;if(!/^[A-G]$/.test(letter)||el.disabled)return;const q=+el.dataset.dropGap,k=taskKey(state.currentPaper,partIndex,q),sentence=app.querySelector('[data-sentence="'+letter+'"]');if(!sentence||sentence.disabled)return;setAnswer(k,letter);el.textContent=letter+'. '+sentence.textContent.slice(3);el.classList.add('filled');el.disabled=true;sentence.classList.add('used');sentence.disabled=true;sentence.draggable=false;draggedSentence='';const status=app.querySelector('.sentence-status');if(status)status.textContent='Sentence '+letter+' inserted into gap '+(first+q)+'.';const jump=app.querySelector('[data-jump="'+q+'"]');if(jump)jump.classList.add('answered')});

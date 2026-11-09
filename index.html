@@ -744,4 +744,10 @@ state.running=true;startBreakClock();
 function pauseExam(screen){document.body.classList.add('exam-active');stopTimer();state.pausedScreen=screen;app.innerHTML=examHeader('--:--')+'<div class="step"><span class="dot">Ⅱ</span><b>Exam paused</b></div><section class="panel exam-workspace"><p class="eyebrow">PAUSED</p><h2>Your exam is paused</h2><p class="intro">Your current paper and remaining time have been preserved. Resume when you are ready.</p><div class="actions"><button class="primary" id="resumeexam">Resume exam →</button><button class="secondary" id="endpaused">End practice</button></div></section>';wireExamHeader();document.getElementById('resumeexam').onclick=()=>{const screen=state.pausedScreen;state.pausedScreen=null;if(screen==='break'){renderBreak(false)}else{renderPractice()}};document.getElementById('endpaused').onclick=()=>{state.started=false;renderComplete()}}
 function renderComplete(){recordCompletedSession();const score=scoreCurrentRue();const report=score?'<div class="choice"><span class="symbol green">✓</span><span><strong>Reading: '+score.reading+' / 42</strong><small>Parts 1, 5, 6 and 7</small><strong>Use of English: '+score.useOfEnglish+' / 28</strong><small>Parts 2, 3 and 4</small><strong>Total: '+score.total+' / 70</strong></span></div>':'<div class="note">Answers have been saved. Detailed marking is available for the candidate Reading and Use of English tests.</div>';frame('Practice complete','You have reached the end of your selected papers.',report+'<div class="note">This is a practice raw-mark result for original candidate material, not an official Cambridge English Scale score.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
 renderHome();
-</script></body></html>
+</script>
+<script src="data/rue-b2-01.js"></script>
+<script src="data/rue-b2-02.js"></script>
+<script src="data/rue-b2-03.js"></script>
+<script src="data/rue-b2-04.js"></script>
+<script src="data/rue-b2-05.js"></script>
+<script src="rue-v2.js"></script></body></html>

@@ -34,7 +34,7 @@ for(const test of tests){
   if(p===5&&(d.questions||[]).length!==n)errors.push(test.id+' Part 5 count');
   if(p===6){
    if((d.answers||[]).length!==n||(d.sentences||[]).length!==7)errors.push(test.id+' Part 6 count');
-   const markers=new Set((d.paragraphs||[]).flatMap(x=>[...String(x).matchAll(/\[\[(\d+)\]\]/g)].map(m=>+m[1])));
+   const markers=new Set((d.paragraphs||[]).flatMap(x=>Array.from(String(x).matchAll(/\[\[(\d+)\]\]/g),m=>+m[1])));
    for(let i=0;i<6;i++)if(!markers.has(i))errors.push(test.id+' Part 6 missing [['+i+']]');
    (d.answers||[]).forEach((x,i)=>{if(!/^[A-G]$/.test(x))errors.push(test.id+' Part 6 answer '+(i+1)+' is not A–G');});
   }

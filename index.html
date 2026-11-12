@@ -241,6 +241,18 @@ body.exam-active .listening-start-screen{position:fixed;inset:61px 0 0;z-index:6
 .speaking-disclaimer{font-size:.8rem;line-height:1.5;color:var(--muted);margin:14px 2px}
 @media(max-width:700px){.speaking-photo-grid,.speaking-prompt-grid{grid-template-columns:1fr}.speaking-photo-grid img{height:210px}.speaking-stage-actions .spacer{display:none}}
 
+
+/* RUE scrolling and fixed multiple-choice menu */
+body.exam-active .exam-content.rue-scroll-safe{overflow:hidden}
+body.exam-active .exam-workspace:has(.cloze-passage){overflow:hidden}
+body.exam-active .cloze-passage{height:calc(100vh - 235px);min-height:180px;overflow-y:auto;padding-bottom:100px;scroll-padding-bottom:100px}
+body.exam-active .gap-choice{width:70px;min-width:70px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+body.exam-active .gap-choice-menu{position:fixed!important;z-index:1000;top:auto;bottom:auto;left:8px;right:auto;min-width:0!important;max-width:min(92vw,420px);display:flex!important;flex-wrap:wrap;gap:4px;padding:6px;box-sizing:border-box}
+body.exam-active .gap-choice-menu[hidden]{display:none!important}
+body.exam-active .gap-choice-menu button{width:auto!important;max-width:100%;white-space:nowrap;flex:1 1 auto;padding:8px 10px}
+.rue-review{max-width:900px;margin:0 auto}.review-part{margin:0 0 22px}.review-part h2{font-size:1.05rem}.review-row{position:relative;padding:12px 42px 12px 14px;margin:6px 0;border-left:5px solid #9aa3ad;background:#f2f4f6;line-height:1.55;word-break:break-word}.review-row.correct{border-color:#2f8b57;background:#edf8f0}.review-row.wrong{border-color:#c84b4b;background:#fff0f0}.review-row.partly\ correct{border-color:#d68b22;background:#fff7e8}.review-row.not\ answered{border-color:#8b939b;background:#f2f3f4}.review-status{position:absolute;right:14px;top:12px;font-size:1.3rem;font-weight:800}
+@media(max-width:700px){body.exam-active .cloze-passage{height:calc(100vh - 210px);padding-bottom:110px}.review-row{padding-right:36px}}
+
 </style></head>
 <body><div class="shell"><header class="topbar"><div class="brand"><div class="mark">C</div><span>Cambridge Prep</span></div><div class="top-tag">Your preparation. Your pace.</div></header><main id="app" aria-live="polite"></main><footer class="footer"><span>Cambridge Prep · Navigation prototype</span><span>An independent study aid, not affiliated with Cambridge English.</span></footer></div>
 <script>
@@ -697,7 +709,7 @@ document.body.classList.add('exam-active');stopTimer();const list=papers();if(!l
 const p=list[state.currentPaper],partIndex=Math.min(state.partIndex||0,p.parts.length-1),count=partCount(p,partIndex);if(p.id==='speaking'){renderSpeakingWorkspace(p);return;}state.partIndex=partIndex;state.questionIndex=Math.max(0,Math.min(state.questionIndex||0,count-1));if(!state.remaining)state.remaining=p.minutes*60;const first=paperQuestionStart(p,partIndex);
 const tabs=p.parts.map((n,i)=>{const total=partCount(p,i),done=Array.from({length:total},(_,q)=>!!answerValue(taskKey(state.currentPaper,i,q))).filter(Boolean).length;return '<button class="task-tab '+(i===partIndex?'active':'')+'" data-part="'+i+'">Part '+(i+1)+'<small>'+done+' of '+total+'</small></button>'}).join('');
 const nums=Array.from({length:count},(_,q)=>{const k=taskKey(state.currentPaper,partIndex,q);return '<button class="question-jump '+(q===state.questionIndex?'current-question ':'')+(answerValue(k)?'answered ':'')+(state.bookmarks[k]?'flagged':'')+'" data-jump="'+q+'">'+(first+q)+'</button>'}).join('');
-app.innerHTML=examHeader(fmt(state.remaining))+'<main class="exam-content"><section class="exam-workspace">'+renderTaskBody(p,partIndex)+'</section></main><nav class="task-bottom-dock"><div class="task-tabs-row">'+tabs+'</div><div class="task-question-row"><div class="task-question-count">Part '+(partIndex+1)+'</div><div class="task-question-numbers">'+nums+'</div><div class="task-arrows"><button class="dock-arrow" id="prevPart" '+(partIndex===0?'disabled':'')+'>←</button><button class="dock-arrow next" id="nextPart">➜</button><button class="dock-arrow skip-section" id="skipSection">Next section →</button></div></div></nav>';
+app.innerHTML=examHeader(fmt(state.remaining))+'<main class="exam-content"><section class="exam-workspace">'+renderTaskBody(p,partIndex)+'</section></main><nav class="task-bottom-dock"><div class="task-tabs-row">'+tabs+'</div><div class="task-question-row"><div class="task-question-count">Part '+(partIndex+1)+'</div><div class="task-question-numbers">'+nums+'</div><div class="task-arrows"><button class="dock-arrow" id="prevPart" '+(partIndex===0?'disabled':'')+'>←</button><button class="dock-arrow next" id="nextPart">➜</button></div></div></nav>';
 const startListening=app.querySelector('#startListening');if(startListening)startListening.onclick=()=>{state.listeningStarted=true;renderPractice()};
 const volume=app.querySelector('#listeningVolume');if(volume)volume.oninput=()=>{state.listeningVolume=+volume.value};
 app.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{state.partIndex=+b.dataset.part;state.questionIndex=0;renderPractice()});
@@ -727,7 +739,7 @@ const divider=app.querySelector('#splitDivider');if(divider){const set=v=>{v=Mat
 function goNextPaper(skipBreak){if(state.currentPaper<list.length-1){if(!skipBreak&&state.mode==='exam'){renderBreak(true)}else{state.currentPaper++;state.partIndex=0;state.questionIndex=0;state.remaining=list[state.currentPaper].minutes*60;renderPractice()}}else renderComplete()}
 document.getElementById('prevPart').onclick=()=>{if(state.questionIndex>0){state.questionIndex--;if(p.id==='writing'&&partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()}else if(partIndex>0){state.partIndex--;state.questionIndex=partCount(p,state.partIndex)-1;if(p.id==='writing'&&state.partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()}};
 document.getElementById('nextPart').onclick=()=>{if(state.questionIndex<count-1){state.questionIndex++;if(p.id==='writing'&&partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()}else if(partIndex<p.parts.length-1){state.partIndex++;state.questionIndex=0;renderPractice()}else goNextPaper(false)};
-document.getElementById('skipSection').onclick=()=>goNextPaper(true);
+
 const activeTarget=app.querySelector('[data-gap-open="'+state.questionIndex+'"]')||app.querySelector('[data-question="'+state.questionIndex+'"]')||app.querySelector('[data-answer="'+taskKey(state.currentPaper,partIndex,state.questionIndex)+'"]');
 if(activeTarget){const block=activeTarget.closest('.mc-question,.listening-completion,.question-row,.writing-task')||activeTarget;setTimeout(()=>{block.scrollIntoView({block:'center',behavior:'smooth'});if(p.id==='rue'&&partIndex===0){activeTarget.click()}else if(typeof activeTarget.focus==='function'){activeTarget.focus()}},0)}
 
@@ -744,6 +756,15 @@ state.running=true;startBreakClock();
 function pauseExam(screen){document.body.classList.add('exam-active');stopTimer();state.pausedScreen=screen;app.innerHTML=examHeader('--:--')+'<div class="step"><span class="dot">Ⅱ</span><b>Exam paused</b></div><section class="panel exam-workspace"><p class="eyebrow">PAUSED</p><h2>Your exam is paused</h2><p class="intro">Your current paper and remaining time have been preserved. Resume when you are ready.</p><div class="actions"><button class="primary" id="resumeexam">Resume exam →</button><button class="secondary" id="endpaused">End practice</button></div></section>';wireExamHeader();document.getElementById('resumeexam').onclick=()=>{const screen=state.pausedScreen;state.pausedScreen=null;if(screen==='break'){renderBreak(false)}else{renderPractice()}};document.getElementById('endpaused').onclick=()=>{state.started=false;renderComplete()}}
 function renderComplete(){recordCompletedSession();const score=scoreCurrentRue();const report=score?'<div class="choice"><span class="symbol green">✓</span><span><strong>Reading: '+score.reading+' / 42</strong><small>Parts 1, 5, 6 and 7</small><strong>Use of English: '+score.useOfEnglish+' / 28</strong><small>Parts 2, 3 and 4</small><strong>Total: '+score.total+' / 70</strong></span></div>':'<div class="note">Answers have been saved. Detailed marking is available for the candidate Reading and Use of English tests.</div>';frame('Practice complete','You have reached the end of your selected papers.',report+'<div class="note">This is a practice raw-mark result for original candidate material, not an official Cambridge English Scale score.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
 renderHome();
+
+// Keep multiple-choice gap menus inside the viewport and close them predictably.
+document.addEventListener('click',function(e){
+ const open=e.target.closest('[data-gap-open]');
+ if(open){setTimeout(function(){const q=open.dataset.gapOpen,m=document.getElementById('gapMenu'+q);if(!m||m.hidden)return;const r=open.getBoundingClientRect(),mw=m.offsetWidth||Math.min(420,innerWidth-16),mh=m.offsetHeight||80;let left=Math.max(8,Math.min(r.left,innerWidth-mw-8));let top=r.bottom+6;if(top+mh>innerHeight-8)top=Math.max(8,r.top-mh-6);m.style.left=left+'px';m.style.top=top+'px';m.style.bottom='auto';},0);return;}
+ if(!e.target.closest('.gap-choice-wrap'))document.querySelectorAll('.gap-choice-menu').forEach(m=>m.hidden=true);
+},true);
+addEventListener('scroll',function(){document.querySelectorAll('.gap-choice-menu').forEach(m=>m.hidden=true);},true);
+addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.gap-choice-menu').forEach(m=>m.hidden=true);});
 </script>
 <script src="data/rue-b2-01.js"></script>
 <script src="data/rue-b2-02.js"></script>

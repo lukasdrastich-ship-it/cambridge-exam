@@ -253,6 +253,17 @@ body.exam-active .gap-choice-menu button{width:auto!important;max-width:100%;whi
 .rue-review{max-width:900px;margin:0 auto}.review-part{margin:0 0 22px}.review-part h2{font-size:1.05rem}.review-row{position:relative;padding:12px 42px 12px 14px;margin:6px 0;border-left:5px solid #9aa3ad;background:#f2f4f6;line-height:1.55;word-break:break-word}.review-row.correct{border-color:#2f8b57;background:#edf8f0}.review-row.wrong{border-color:#c84b4b;background:#fff0f0}.review-row.partly\ correct{border-color:#d68b22;background:#fff7e8}.review-row.not\ answered{border-color:#8b939b;background:#f2f3f4}.review-status{position:absolute;right:14px;top:12px;font-size:1.3rem;font-weight:800}
 @media(max-width:700px){body.exam-active .cloze-passage{height:calc(100vh - 210px);padding-bottom:110px}.review-row{padding-right:36px}}
 
+
+/* RUE interaction refinements */
+body.exam-active .cloze-passage{height:calc(100vh - 235px);overflow-y:auto;padding-bottom:110px}
+body.exam-active .gap-choice-menu{position:fixed!important;z-index:1000;display:flex;flex-wrap:wrap;gap:5px;max-width:min(92vw,420px);padding:6px;background:#fff;border:1px solid #b8c0c5;box-shadow:0 4px 14px #0002}
+body.exam-active .gap-choice-menu[hidden]{display:none!important}
+body.exam-active .gap-choice-menu button{display:block;width:auto!important;flex:1 1 auto;white-space:nowrap}
+body.exam-active .gap-choice{width:70px;min-width:70px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.exam-active .word-stem-list{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 32px;max-width:900px}.word-stem-chip{border:1px solid #d5d9dc;border-radius:999px;padding:5px 9px;font-size:.8rem;background:#f6f7f8;white-space:nowrap}.transform-sentence{display:flex;flex-wrap:wrap;align-items:center;gap:4px}.transform-sentence .rue-gap-input{width:16ch;min-width:12ch;max-width:100%;margin:0;text-align:left}
+body.exam-active .split-divider{touch-action:none;user-select:none}.split-dragging,.split-dragging *{user-select:none!important}.split-grip{width:28px;min-height:48px;border-radius:14px;border:1px solid #aeb7bd;background:#fff;display:grid;place-items:center;letter-spacing:-4px;line-height:.65;color:#59616a;font-size:16px}.split-pane .reading-passage,.split-pane .matching-section,.split-pane .question-scroll{max-width:80ch;margin-left:auto;margin-right:auto}.split-left .reading-passage,.split-left .matching-section{max-width:72ch}.split-pane{overflow-y:auto;overflow-x:hidden}
+@media(max-width:700px){.word-stem-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.word-stem-chip{white-space:normal}.transform-sentence .rue-gap-input{width:14ch}.body.exam-active .cloze-passage{height:calc(100vh - 210px)}}
+
 </style></head>
 <body><div class="shell"><header class="topbar"><div class="brand"><div class="mark">C</div><span>Cambridge Prep</span></div><div class="top-tag">Your preparation. Your pace.</div></header><main id="app" aria-live="polite"></main><footer class="footer"><span>Cambridge Prep · Navigation prototype</span><span>An independent study aid, not affiliated with Cambridge English.</span></footer></div>
 <script>
@@ -581,7 +592,7 @@ const first=paperQuestionStart(p,index),count=partCount(p,index),key=q=>taskKey(
 const intro='<div class="task-instructions"><strong>Reading and Use of English · Part '+(index+1)+'</strong><p>Answer the questions carefully and use the navigation below to move between questions.</p></div>';
 const bookmark=q=>'<button class="task-bookmark '+(state.bookmarks[key(q)]?'marked':'')+'" data-bookmark-question="'+q+'" aria-label="Bookmark question">♧</button>';
 const input=(q,ph='')=>'<input class="rue-gap-input" data-answer="'+key(q)+'" data-question="'+q+'" value="'+esc(ans(q))+'" placeholder="'+(ph||first+q)+'">';
-const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" tabindex="0"><button data-resize="less" aria-label="Narrow left column">‹</button><button data-resize="more" aria-label="Widen left column">›</button></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';
+const split=(l,r,cls='')=>'<div class="split-task '+cls+'" style="--left-width:'+(state.splitWidths?.[index]||50)+'%"><section class="split-pane split-left" id="splitLeft">'+l+'</section><div class="split-divider" id="splitDivider" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="30" aria-valuemax="70" aria-valuenow="50"><span class="split-grip" aria-hidden="true">⋮⋮</span></div><section class="split-pane split-right" id="splitRight">'+r+'</section></div>';
 if(p.id==='writing'){
  const v=ans(0)||'';
  if(index===0)return '<div class="task-instructions"><strong>Writing · Part 1</strong><p>Write an essay. Use the notes and support your ideas with reasons and examples.</p></div><article class="writing-task"><h2>Part 1 · Essay</h2><textarea class="writing-response" data-answer="'+key(0)+'" data-count="writingCount0" placeholder="Write your answer here...">'+esc(v)+'</textarea><p id="writingCount0">Words: '+(v.trim()?v.trim().split(/\s+/).length:0)+'</p></article>';
@@ -601,16 +612,17 @@ if(index===0){
  return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
 }
 if(index===1){
- const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return '<span class="number-box">'+(first+q)+'</span>'+input(q,'One word');});
+ const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return input(q,'One word');});
  return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
 }
 if(index===2){
- const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return '<span class="number-box">'+(first+q)+'</span>'+input(q,'Your word')+' <span class="inline-keyword">'+esc(data.words[q][1])+'</span>';});
- const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
+ const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return input(q,String(first+q));});
+ const stems='<div class="word-stem-list">'+data.words.map((w,q)=>'<span class="word-stem-chip">'+(first+q)+' · '+esc(w[1])+'</span>').join('')+'</div>';
+ const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>'+stems;
  return intro+left;
 }
 if(index===3){
- return intro+'<div class="transform-list">'+data.items.map((x,q)=>'<article class="transform-item"><strong>'+(first+q)+'</strong><p>'+esc(x.a)+'</p><b>'+esc(x.keyword)+'</b><p>'+esc(x.b)+'</p>'+input(q,'Your answer')+bookmark(q)+'</article>').join('')+'</div>';
+ return intro+'<div class="transform-list">'+data.items.map((x,q)=>{const raw=String(x.b||'');const gap=input(q,'Your answer');let sentence;if(/_{2,}/.test(raw)){const parts=raw.split(/_{2,}/);sentence=esc(parts[0])+gap+esc(parts.slice(1).join(''));}else sentence=esc(raw)+' '+gap;return '<article class="transform-item"><strong>'+(first+q)+'</strong><p>'+esc(x.a)+'</p><p><b>'+esc(x.keyword)+'</b></p><p class="transform-sentence">'+sentence+'</p>'+bookmark(q)+'</article>';}).join('')+'</div>';
 }
 if(index===4){
  const qs=data.questions;
@@ -735,13 +747,13 @@ app.querySelectorAll('[data-drop-gap]').forEach(el=>{
  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drop-target');const letter=e.dataTransfer.getData('text/plain')||draggedSentence;if(!/^[A-G]$/.test(letter))return;insertSentence(el,letter);const q=+el.dataset.dropGap;const status=app.querySelector('.sentence-status');if(status)status.textContent='Sentence '+letter+' inserted into gap '+(first+q)+'.';const jump=app.querySelector('[data-jump="'+q+'"]');if(jump)jump.classList.add('answered')});
 });
 
-const divider=app.querySelector('#splitDivider');if(divider){const set=v=>{v=Math.max(28,Math.min(72,v));state.splitWidths=state.splitWidths||{};state.splitWidths[partIndex]=v;app.querySelector('.split-task').style.setProperty('--left-width',v+'%')};app.querySelectorAll('[data-resize=less]').forEach(b=>b.onclick=()=>set((state.splitWidths?.[partIndex]||50)-5));app.querySelectorAll('[data-resize=more]').forEach(b=>b.onclick=()=>set((state.splitWidths?.[partIndex]||50)+5));let drag=false;divider.addEventListener('pointerdown',e=>{drag=true;divider.setPointerCapture(e.pointerId)});divider.addEventListener('pointermove',e=>{if(drag){const r=divider.parentElement.getBoundingClientRect();set((e.clientX-r.left)/r.width*100)}});divider.addEventListener('pointerup',()=>drag=false);divider.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')set((state.splitWidths?.[partIndex]||50)-3);if(e.key==='ArrowRight')set((state.splitWidths?.[partIndex]||50)+3)})}
+const divider=app.querySelector('#splitDivider');if(divider){const splitTask=app.querySelector('.split-task');const limits=()=>{if(innerWidth<=700)return [35,65];const w=splitTask.getBoundingClientRect().width,d=36,minPx=Math.min(280,(w-d)/2);return [Math.max(30,minPx/(w-d)*100),Math.min(70,100-minPx/(w-d)*100)]};const set=v=>{const [lo,hi]=limits();v=Math.max(lo,Math.min(hi,v));state.splitWidths=state.splitWidths||{};state.splitWidths[partIndex]=v;splitTask.style.setProperty('--left-width',v+'%');divider.setAttribute('aria-valuenow',String(Math.round(v)));};set(state.splitWidths?.[partIndex]||50);let dragging=false;divider.addEventListener('pointerdown',e=>{dragging=true;document.body.classList.add('split-dragging');divider.setPointerCapture(e.pointerId);e.preventDefault()});divider.addEventListener('pointermove',e=>{if(!dragging)return;const r=splitTask.getBoundingClientRect();set((e.clientX-r.left)/r.width*100)});const stop=e=>{if(!dragging)return;dragging=false;document.body.classList.remove('split-dragging');try{divider.releasePointerCapture(e.pointerId)}catch(_){}};divider.addEventListener('pointerup',stop);divider.addEventListener('pointercancel',stop);divider.addEventListener('dblclick',()=>set(50));divider.addEventListener('keydown',e=>{const now=state.splitWidths?.[partIndex]||50;if(e.key==='ArrowLeft'){e.preventDefault();set(now-2)}if(e.key==='ArrowRight'){e.preventDefault();set(now+2)}if(e.key==='Home'){e.preventDefault();set(50)}})}
 function goNextPaper(skipBreak){if(state.currentPaper<list.length-1){if(!skipBreak&&state.mode==='exam'){renderBreak(true)}else{state.currentPaper++;state.partIndex=0;state.questionIndex=0;state.remaining=list[state.currentPaper].minutes*60;renderPractice()}}else renderComplete()}
 document.getElementById('prevPart').onclick=()=>{if(state.questionIndex>0){state.questionIndex--;if(p.id==='writing'&&partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()}else if(partIndex>0){state.partIndex--;state.questionIndex=partCount(p,state.partIndex)-1;if(p.id==='writing'&&state.partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()}};
 document.getElementById('nextPart').onclick=()=>{if(state.questionIndex<count-1){state.questionIndex++;if(p.id==='writing'&&partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()}else if(partIndex<p.parts.length-1){state.partIndex++;state.questionIndex=0;renderPractice()}else goNextPaper(false)};
 
 const activeTarget=app.querySelector('[data-gap-open="'+state.questionIndex+'"]')||app.querySelector('[data-question="'+state.questionIndex+'"]')||app.querySelector('[data-answer="'+taskKey(state.currentPaper,partIndex,state.questionIndex)+'"]');
-if(activeTarget){const block=activeTarget.closest('.mc-question,.listening-completion,.question-row,.writing-task')||activeTarget;setTimeout(()=>{block.scrollIntoView({block:'center',behavior:'smooth'});if(p.id==='rue'&&partIndex===0){activeTarget.click()}else if(typeof activeTarget.focus==='function'){activeTarget.focus()}},0)}
+if(activeTarget){const block=activeTarget.closest('.mc-question,.listening-completion,.question-row,.writing-task')||activeTarget;setTimeout(()=>{block.scrollIntoView({block:'center',behavior:'smooth'});if(!(p.id==='rue'&&partIndex===0)&&typeof activeTarget.focus==='function'){activeTarget.focus()}},0)}
 
 wireExamHeader();if(state.remaining>0){state.running=true;state.timerId=setInterval(()=>{state.remaining--;const el=document.getElementById('headerClock');if(el)el.textContent=fmt(state.remaining);if(state.remaining<=0)stopTimer()},1000)}
 }
@@ -757,14 +769,19 @@ function pauseExam(screen){document.body.classList.add('exam-active');stopTimer(
 function renderComplete(){recordCompletedSession();const score=scoreCurrentRue();const report=score?'<div class="choice"><span class="symbol green">✓</span><span><strong>Reading: '+score.reading+' / 42</strong><small>Parts 1, 5, 6 and 7</small><strong>Use of English: '+score.useOfEnglish+' / 28</strong><small>Parts 2, 3 and 4</small><strong>Total: '+score.total+' / 70</strong></span></div>':'<div class="note">Answers have been saved. Detailed marking is available for the candidate Reading and Use of English tests.</div>';frame('Practice complete','You have reached the end of your selected papers.',report+'<div class="note">This is a practice raw-mark result for original candidate material, not an official Cambridge English Scale score.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
 renderHome();
 
-// Keep multiple-choice gap menus inside the viewport and close them predictably.
-document.addEventListener('click',function(e){
- const open=e.target.closest('[data-gap-open]');
- if(open){setTimeout(function(){const q=open.dataset.gapOpen,m=document.getElementById('gapMenu'+q);if(!m||m.hidden)return;const r=open.getBoundingClientRect(),mw=m.offsetWidth||Math.min(420,innerWidth-16),mh=m.offsetHeight||80;let left=Math.max(8,Math.min(r.left,innerWidth-mw-8));let top=r.bottom+6;if(top+mh>innerHeight-8)top=Math.max(8,r.top-mh-6);m.style.left=left+'px';m.style.top=top+'px';m.style.bottom='auto';},0);return;}
- if(!e.target.closest('.gap-choice-wrap'))document.querySelectorAll('.gap-choice-menu').forEach(m=>m.hidden=true);
-},true);
-addEventListener('scroll',function(){document.querySelectorAll('.gap-choice-menu').forEach(m=>m.hidden=true);},true);
-addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.gap-choice-menu').forEach(m=>m.hidden=true);});
+// Part 1 fixed-position gap menus. Opening is explicit; no render-time auto-open.
+(function(){
+ let openMenu=null;
+ function close(){if(openMenu){openMenu.hidden=true;openMenu=null}}
+ function place(button,menu){menu.hidden=false;menu.style.visibility='hidden';const r=button.getBoundingClientRect(),mw=Math.min(innerWidth-16,420);menu.style.maxWidth=mw+'px';const mh=menu.offsetHeight||100;let left=Math.max(8,Math.min(r.left,innerWidth-mw-8));let top=r.bottom+6;if(top+mh>innerHeight-8)top=Math.max(8,r.top-mh-6);menu.style.left=left+'px';menu.style.top=top+'px';menu.style.visibility='visible';}
+ document.addEventListener('click',function(e){
+  const button=e.target.closest('[data-gap-open]');
+  if(button){e.stopPropagation();const menu=document.getElementById('gapMenu'+button.dataset.gapOpen);if(openMenu===menu){close();return}close();openMenu=menu;place(button,menu);return}
+  if(!e.target.closest('.gap-choice-wrap'))close();
+ });
+ document.addEventListener('scroll',function(e){if(!openMenu)return;const passage=e.target.closest&&e.target.closest('.cloze-passage');if(passage)close()},true);
+ addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+})();
 </script>
 <script src="data/rue-b2-01.js"></script>
 <script src="data/rue-b2-02.js"></script>

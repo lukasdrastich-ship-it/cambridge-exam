@@ -623,7 +623,7 @@ if(index===1){
 if(index===2){
  const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return input(q,String(first+q));});
  const stems='<div class="word-stem-list">'+data.words.map((w,q)=>'<span class="word-stem-chip">'+(first+q)+' · '+esc(w[1])+'</span>').join('')+'</div>';
- const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>'+stems;
+ const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+stems+'</article>';
  return intro+left;
 }
 if(index===3){

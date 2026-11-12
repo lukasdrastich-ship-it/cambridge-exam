@@ -144,7 +144,7 @@ body.exam-active .part-six .text-gap.drop-target{outline:2px dashed #07839a;back
 
 /* Part 1 inline cloze alignment and compact horizontal answer picker */
 body.exam-active .cloze-passage{line-height:2.55}
-body.exam-active .gap-choice-wrap{display:inline-flex;position:relative;vertical-align:baseline;align-items:baseline;margin:0 4px;transform:translateY(-.08em)}
+body.exam-active .gap-choice-wrap{display:inline-flex;position:relative;top:-.08em;vertical-align:baseline;align-items:baseline;margin:0 4px}
 body.exam-active .gap-choice-anchor{display:inline-flex;align-items:center;line-height:1}
 body.exam-active .gap-choice{height:23px;min-width:116px;line-height:19px;vertical-align:baseline}
 body.exam-active .gap-choice-menu{position:absolute;z-index:40;left:0;bottom:calc(100% + 5px);top:auto;display:flex;flex-direction:row;align-items:center;gap:2px;min-width:0;width:max-content;max-width:calc(100vw - 24px);padding:3px;white-space:nowrap}
@@ -262,7 +262,12 @@ body.exam-active .gap-choice-menu button{display:block;width:auto!important;flex
 body.exam-active .gap-choice{width:70px;min-width:70px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.exam-active .word-stem-list{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0 32px;max-width:900px}.word-stem-chip{border:1px solid #d5d9dc;border-radius:999px;padding:5px 9px;font-size:.8rem;background:#f6f7f8;white-space:nowrap}.transform-sentence{display:flex;flex-wrap:wrap;align-items:center;gap:4px}.transform-sentence .rue-gap-input{width:16ch;min-width:12ch;max-width:100%;margin:0;text-align:left}
 body.exam-active .split-divider{touch-action:none;user-select:none}.split-dragging,.split-dragging *{user-select:none!important}.split-grip{width:28px;min-height:48px;border-radius:14px;border:1px solid #aeb7bd;background:#fff;display:grid;place-items:center;letter-spacing:-4px;line-height:.65;color:#59616a;font-size:16px}.split-pane .reading-passage,.split-pane .matching-section,.split-pane .question-scroll{max-width:80ch;margin-left:auto;margin-right:auto}.split-left .reading-passage,.split-left .matching-section{max-width:72ch}.split-pane{overflow-y:auto;overflow-x:hidden}
-@media(max-width:700px){.word-stem-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.word-stem-chip{white-space:normal}.transform-sentence .rue-gap-input{width:14ch}.body.exam-active .cloze-passage{height:calc(100vh - 210px)}}
+@media(max-width:700px){.word-stem-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.word-stem-chip{white-space:normal}.transform-sentence .rue-gap-input{width:14ch}body.exam-active .cloze-passage{height:calc(100vh - 210px)}}
+
+
+/* Part 1 menu portal: fixed coordinates are relative to the viewport. */
+body.exam-active .gap-choice-wrap{transform:none!important;filter:none!important;perspective:none!important;contain:none!important;will-change:auto!important}
+body.exam-active .gap-choice-menu{position:fixed!important;z-index:9999!important;box-sizing:border-box}
 
 </style></head>
 <body><div class="shell"><header class="topbar"><div class="brand"><div class="mark">C</div><span>Cambridge Prep</span></div><div class="top-tag">Your preparation. Your pace.</div></header><main id="app" aria-live="polite"></main><footer class="footer"><span>Cambridge Prep · Navigation prototype</span><span>An independent study aid, not affiliated with Cambridge English.</span></footer></div>
@@ -728,9 +733,9 @@ app.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{state.partIndex=+b
 app.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{state.questionIndex=+b.dataset.jump;if(p.id==='writing'&&partIndex===1)state.writingQuestion=state.questionIndex;renderPractice()});
 app.querySelectorAll('[data-answer]').forEach(el=>el.addEventListener(el.type==='radio'||el.tagName==='SELECT'?'change':'input',()=>{setAnswer(el.dataset.answer,el.value);if(el.classList.contains('writing-selection')){if(el.value==='Yes'){[0,1,2].forEach(i=>{if(i!==state.writingQuestion)setAnswer(taskKey(state.currentPaper,1,i)+'-selection','No')})}const count=[0,1,2].filter(i=>answerValue(taskKey(state.currentPaper,1,i)+'-selection')==='Yes').length;const small=app.querySelector('.writing-selection-bar small');if(small)small.textContent=count+' of 1 questions selected.';const check=app.querySelector('.writing-selection-check');if(check)check.textContent=el.value==='Yes'?'✔':'?'}const counter=app.querySelector('[data-count="'+el.dataset.answer+'"]');if(counter&&el.tagName==='TEXTAREA'){const words=el.value.trim()?el.value.trim().split(/\s+/).length:0;counter.textContent='Words: '+words}const j=app.querySelector('[data-jump="'+el.dataset.question+'"]');if(j)j.classList.toggle('answered',!!el.value.trim())}));
 app.querySelectorAll('[data-bookmark-question]').forEach(b=>b.onclick=()=>{const q=+b.dataset.bookmarkQuestion,k=taskKey(state.currentPaper,partIndex,q);state.bookmarks[k]=!state.bookmarks[k];b.classList.toggle('marked',!!state.bookmarks[k]);const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.toggle('flagged',!!state.bookmarks[k])});
-app.querySelectorAll('[data-gap-open]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapOpen;app.querySelectorAll('.gap-choice-menu').forEach(m=>{if(m.id!=='gapMenu'+q)m.hidden=true});const m=document.getElementById('gapMenu'+q);m.hidden=!m.hidden;if(!m.hidden){m.style.left='0px';const wrap=m.closest('.gap-choice-wrap'),wr=wrap.getBoundingClientRect(),mr=m.getBoundingClientRect();const shift=Math.max(-wr.left+8,Math.min(0,window.innerWidth-8-mr.right));m.style.left=shift+'px'}});
-app.querySelectorAll('[data-gap-value]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapValue,k=taskKey(state.currentPaper,partIndex,q),anchor=app.querySelector('[data-gap-open="'+q+'"]'),clear=app.querySelector('[data-gap-clear="'+q+'"]');setAnswer(k,b.dataset.value);anchor.textContent=b.textContent;clear.hidden=false;document.getElementById('gapMenu'+q).hidden=true;const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.add('answered')});
-app.querySelectorAll('[data-gap-clear]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapClear;setAnswer(taskKey(state.currentPaper,partIndex,q),'');app.querySelector('[data-gap-open="'+q+'"]').textContent='Question '+(first+q);const menu=document.getElementById('gapMenu'+q);if(menu)menu.hidden=true;const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.remove('answered');const target=app.querySelector('[data-gap-open="'+q+'"]');if(target)target.focus()});
+
+app.querySelectorAll('[data-gap-value]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapValue,k=taskKey(state.currentPaper,partIndex,q),anchor=app.querySelector('[data-gap-open="'+q+'"]'),clear=app.querySelector('[data-gap-clear="'+q+'"]');setAnswer(k,b.dataset.value);anchor.textContent=b.textContent;clear.hidden=false;if(window.closeRueGapMenu)window.closeRueGapMenu(document.getElementById('gapMenu'+q));const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.add('answered')});
+app.querySelectorAll('[data-gap-clear]').forEach(b=>b.onclick=()=>{const q=+b.dataset.gapClear;setAnswer(taskKey(state.currentPaper,partIndex,q),'');app.querySelector('[data-gap-open="'+q+'"]').textContent='Question '+(first+q);if(window.closeRueGapMenu)window.closeRueGapMenu(document.getElementById('gapMenu'+q));const j=app.querySelector('[data-jump="'+q+'"]');if(j)j.classList.remove('answered');const target=app.querySelector('[data-gap-open="'+q+'"]');if(target)target.focus()});
 let draggedSentence='';
 let selectedSentence='';
 app.querySelectorAll('[data-sentence]').forEach(b=>{
@@ -769,18 +774,74 @@ function pauseExam(screen){document.body.classList.add('exam-active');stopTimer(
 function renderComplete(){recordCompletedSession();const score=scoreCurrentRue();const report=score?'<div class="choice"><span class="symbol green">✓</span><span><strong>Reading: '+score.reading+' / 42</strong><small>Parts 1, 5, 6 and 7</small><strong>Use of English: '+score.useOfEnglish+' / 28</strong><small>Parts 2, 3 and 4</small><strong>Total: '+score.total+' / 70</strong></span></div>':'<div class="note">Answers have been saved. Detailed marking is available for the candidate Reading and Use of English tests.</div>';frame('Practice complete','You have reached the end of your selected papers.',report+'<div class="note">This is a practice raw-mark result for original candidate material, not an official Cambridge English Scale score.</div>','<div class="actions"><button class="primary" id="again">Back to summary</button><button class="secondary" id="home">Back to start</button></div>');document.getElementById('again').onclick=()=>{state.currentPaper=0;state.remaining=0;renderSummary(modes.find(m=>m.id===state.mode))};document.getElementById('home').onclick=renderHome}
 renderHome();
 
-// Part 1 fixed-position gap menus. Opening is explicit; no render-time auto-open.
+// Part 1 fixed-position gap menus. Menus are portalled to <body> so ancestor layout cannot affect viewport coordinates.
 (function(){
  let openMenu=null;
- function close(){if(openMenu){openMenu.hidden=true;openMenu=null}}
- function place(button,menu){menu.hidden=false;menu.style.visibility='hidden';const r=button.getBoundingClientRect(),mw=Math.min(innerWidth-16,420);menu.style.maxWidth=mw+'px';const mh=menu.offsetHeight||100;let left=Math.max(8,Math.min(r.left,innerWidth-mw-8));let top=r.bottom+6;if(top+mh>innerHeight-8)top=Math.max(8,r.top-mh-6);menu.style.left=left+'px';menu.style.top=top+'px';menu.style.visibility='visible';}
+ function restore(menu){
+  if(!menu||!menu._home)return;
+  const home=menu._home,next=menu._next;
+  if(home.isConnected){
+   if(next&&next.parentNode===home)home.insertBefore(menu,next);
+   else home.appendChild(menu);
+  }else menu.remove();
+ }
+ function close(menu){
+  const target=menu||openMenu;
+  if(!target)return;
+  target.hidden=true;
+  target.style.visibility='';
+  target.style.left='';
+  target.style.top='';
+  restore(target);
+  if(openMenu===target)openMenu=null;
+ }
+ window.closeRueGapMenu=close;
+ function place(button,menu){
+  if(!menu._home){menu._home=menu.parentNode;menu._next=menu.nextSibling;}
+  if(menu.parentNode!==document.body)document.body.appendChild(menu);
+  menu.hidden=false;
+  menu.style.position='fixed';
+  menu.style.visibility='hidden';
+  menu.style.maxWidth=Math.min(innerWidth-16,420)+'px';
+  menu.style.left='8px';
+  menu.style.top='8px';
+  const r=button.getBoundingClientRect();
+  let mr=menu.getBoundingClientRect();
+  let left=Math.max(8,Math.min(r.left,innerWidth-mr.width-8));
+  let top=r.bottom+6;
+  if(top+mr.height>innerHeight-8)top=Math.max(8,r.top-mr.height-6);
+  menu.style.left=Math.round(left)+'px';
+  menu.style.top=Math.round(top)+'px';
+  menu.style.visibility='visible';
+  mr=menu.getBoundingClientRect();
+  // Final viewport assertion/clamp after the real dimensions are known.
+  if(mr.left<8)menu.style.left=(parseFloat(menu.style.left)+(8-mr.left))+'px';
+  if(mr.right>innerWidth-8)menu.style.left=(parseFloat(menu.style.left)-(mr.right-(innerWidth-8)))+'px';
+  mr=menu.getBoundingClientRect();
+  if(mr.top<8)menu.style.top=(parseFloat(menu.style.top)+(8-mr.top))+'px';
+  if(mr.bottom>innerHeight-8)menu.style.top=Math.max(8,parseFloat(menu.style.top)-(mr.bottom-(innerHeight-8)))+'px';
+  mr=menu.getBoundingClientRect();
+  const dx=Math.round(mr.left-r.left),dy=Math.round(mr.top-r.bottom);
+  console.log('[RUE Part 1 menu]',button.dataset.gapOpen,{gap:{left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom)},menu:{left:Math.round(mr.left),top:Math.round(mr.top),right:Math.round(mr.right),bottom:Math.round(mr.bottom)},distance:{x:dx,y:dy},insideViewport:mr.left>=8&&mr.top>=8&&mr.right<=innerWidth-8&&mr.bottom<=innerHeight-8});
+ }
  document.addEventListener('click',function(e){
-  if(e.target.closest('[data-gap-value],[data-gap-clear]')){openMenu=null;return}
   const button=e.target.closest('[data-gap-open]');
-  if(button){e.stopPropagation();const menu=document.getElementById('gapMenu'+button.dataset.gapOpen);if(openMenu===menu){close();return}close();openMenu=menu;place(button,menu);return}
-  if(!e.target.closest('.gap-choice-wrap'))close();
+  if(button){
+   const menu=document.getElementById('gapMenu'+button.dataset.gapOpen);
+   if(openMenu===menu){close(menu);return}
+   close();
+   openMenu=menu;
+   place(button,menu);
+   return;
+  }
+  if(e.target.closest('[data-gap-value]')||e.target.closest('[data-gap-clear]'))return;
+  if(openMenu&&!e.target.closest('.gap-choice-menu'))close();
  });
- document.addEventListener('scroll',function(e){if(!openMenu)return;const passage=e.target.closest&&e.target.closest('.cloze-passage');if(passage)close()},true);
+ document.addEventListener('scroll',function(e){
+  if(!openMenu)return;
+  const target=e.target;
+  if(target&&target.classList&&target.classList.contains('cloze-passage'))close();
+ },true);
  addEventListener('keydown',function(e){if(e.key==='Escape')close()});
 })();
 </script>

@@ -775,6 +775,7 @@ renderHome();
  function close(){if(openMenu){openMenu.hidden=true;openMenu=null}}
  function place(button,menu){menu.hidden=false;menu.style.visibility='hidden';const r=button.getBoundingClientRect(),mw=Math.min(innerWidth-16,420);menu.style.maxWidth=mw+'px';const mh=menu.offsetHeight||100;let left=Math.max(8,Math.min(r.left,innerWidth-mw-8));let top=r.bottom+6;if(top+mh>innerHeight-8)top=Math.max(8,r.top-mh-6);menu.style.left=left+'px';menu.style.top=top+'px';menu.style.visibility='visible';}
  document.addEventListener('click',function(e){
+  if(e.target.closest('[data-gap-value],[data-gap-clear]')){openMenu=null;return}
   const button=e.target.closest('[data-gap-open]');
   if(button){e.stopPropagation();const menu=document.getElementById('gapMenu'+button.dataset.gapOpen);if(openMenu===menu){close();return}close();openMenu=menu;place(button,menu);return}
   if(!e.target.closest('.gap-choice-wrap'))close();

@@ -270,11 +270,16 @@ body.exam-active .gap-choice-wrap{transform:none!important;filter:none!important
 body.exam-active .gap-choice-menu{position:fixed!important;z-index:9999!important;box-sizing:border-box}
 
 
-/* Part 3: each word stem stays on the same line as its own gap. */
-body.exam-active .part-three-gap{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;vertical-align:middle;max-width:100%;margin:0 3px}
-body.exam-active .part-three-gap .rue-gap-input{margin:0}
-body.exam-active .part-three-gap .word-stem-chip{display:inline-block;white-space:nowrap;flex:0 0 auto}
-@media(max-width:700px){body.exam-active .part-three-gap{gap:5px;margin:0 2px}.body.exam-active .part-three-gap .word-stem-chip{font-size:.72rem;padding:4px 6px}}
+/* Part 3: stems live in a right panel aligned with the line containing their gap. */
+body.exam-active .part-three-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,28%);gap:18px;align-items:start;height:calc(100vh - 235px);min-height:0;overflow-y:auto;padding-bottom:110px}
+body.exam-active .part-three-text{min-width:0}
+body.exam-active .part-three-text .cloze-passage{height:auto;overflow:visible;padding-bottom:0}
+body.exam-active .word-stem-panel{position:relative;min-width:0;align-self:stretch;border-left:1px solid #d5d9dc;padding-left:14px}
+body.exam-active .word-stem-panel h3{margin:0;font-size:.95rem}
+body.exam-active .word-stem-track{position:relative;min-height:100%}
+body.exam-active .word-stem-row{position:absolute;left:14px;right:0;display:flex;align-items:center;min-height:32px}
+body.exam-active .word-stem-chip{display:inline-block;border:1px solid #d5d9dc;border-radius:999px;padding:5px 9px;font-size:.8rem;background:#f6f7f8;white-space:normal;line-height:1.25}
+@media(max-width:700px){body.exam-active .part-three-layout{grid-template-columns:minmax(0,1fr) minmax(112px,34%);gap:10px;height:calc(100vh - 210px);padding-bottom:110px}body.exam-active .word-stem-panel{padding-left:7px}.word-stem-row{left:7px}.word-stem-chip{font-size:.72rem;padding:4px 6px}}
 
 </style></head>
 <body><div class="shell"><header class="topbar"><div class="brand"><div class="mark">C</div><span>Cambridge Prep</span></div><div class="top-tag">Your preparation. Your pace.</div></header><main id="app" aria-live="polite"></main><footer class="footer"><span>Cambridge Prep · Navigation prototype</span><span>An independent study aid, not affiliated with Cambridge English.</span></footer></div>
@@ -536,6 +541,7 @@ function renderSummary(mode){
  document.getElementById('change').onclick=renderDetail;
  document.getElementById('home').onclick=renderHome
 }
+if(!window.__partThreeStemResizeBound){window.__partThreeStemResizeBound=true;window.addEventListener('resize',()=>requestAnimationFrame(syncPartThreeStems))}
 function fmt(sec){const n=Math.max(0,sec);return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
 function partCount(paper,index){
 if(paper.id==='rue')return [8,8,8,6,6,6,10][index];
@@ -628,8 +634,10 @@ if(index===1){
  return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
 }
 if(index===2){
- const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n,stem=data.words&&data.words[q]?data.words[q][1]:'';return '<span class="part-three-gap">'+input(q,String(first+q))+'<span class="word-stem-chip">'+(first+q)+' · '+esc(stem)+'</span></span>';});
- return intro+'<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
+ const body=esc(data.text).replace(/\[\[(\d)\]\]/g,(m,n)=>{const q=+n;return input(q,String(first+q));});
+ const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="cloze-passage">'+body+'</article>';
+ const stems='<aside class="word-stem-panel" aria-label="Word stems"><h3>Word stems</h3><div class="word-stem-track" data-word-stem-track></div></aside>';
+ return intro+'<div class="part-three-layout" data-part-three-layout data-word-stems="'+esc(JSON.stringify((data.words||[]).map(w=>w&&w[1]||'')))+'"><section class="part-three-text">'+left+'</section>'+stems+'</div>';
 }
 if(index===3){
  return intro+'<div class="transform-list">'+data.items.map((x,q)=>{const raw=String(x.b||'');const gap=input(q,'Your answer');let sentence;if(/_{2,}/.test(raw)){const parts=raw.split(/_{2,}/);sentence=esc(parts[0])+gap+esc(parts.slice(1).join(''));}else sentence=esc(raw)+' '+gap;return '<article class="transform-item"><strong>'+(first+q)+'</strong><p>'+esc(x.a)+'</p><p><b>'+esc(x.keyword)+'</b></p><p class="transform-sentence">'+sentence+'</p>'+bookmark(q)+'</article>';}).join('')+'</div>';
@@ -650,6 +658,26 @@ const left='<h2 class="lorem-title">'+esc(data.title)+'</h2><article class="read
 const right='<div class="question-scroll"><h3>Which person?</h3>'+data.questions.map((x,q)=>'<article class="mc-question"><h3><span class="number-box">'+(first+q)+'</span>'+esc(x[0])+bookmark(q)+'</h3><div class="match-options">'+['A','B','C','D'].map(v=>'<label class="match-option"><input type="radio" name="rue7-'+q+'" data-answer="'+key(q)+'" data-question="'+q+'" value="'+v+'" '+(ans(q)===v?'checked':'')+'> '+v+'</label>').join('')+'</div></article>').join('')+'</div>';
 return intro+split(left,right,'reading-split part-seven')
 }
+}
+function syncPartThreeStems(){
+ const layout=app.querySelector('[data-part-three-layout]');if(!layout)return;
+ const track=layout.querySelector('[data-word-stem-track]'),left=layout.querySelector('.part-three-text');if(!track||!left)return;
+ let stems=[];try{stems=JSON.parse(layout.dataset.wordStems||'[]')}catch(e){}
+ const layoutRect=layout.getBoundingClientRect(),inputs=Array.from(left.querySelectorAll('.rue-gap-input[data-question]'));
+ const groups=[];
+ inputs.forEach(input=>{
+  const q=+input.dataset.question,r=input.getBoundingClientRect(),top=Math.round(r.top-layoutRect.top+layout.scrollTop);
+  let group=groups.find(g=>Math.abs(g.top-top)<=6);
+  if(!group){group={top,items:[]};groups.push(group)}
+  group.items.push({q,stem:stems[q]||''});
+ });
+ track.innerHTML=groups.sort((a,b)=>a.top-b.top).map(g=>{
+  const text=g.items.map(x=>(17+x.q)+' · '+esc(x.stem)).join(' / ');
+  return '<div class="word-stem-row" style="top:'+Math.max(0,g.top)+'px"><span class="word-stem-chip">'+text+'</span></div>';
+ }).join('');
+ const passage=left.querySelector('.cloze-passage');
+ const contentHeight=Math.max(left.scrollHeight,passage?passage.scrollHeight:0);
+ track.style.height=Math.max(1,contentHeight)+'px';
 }
 function renderSpeakingWorkspace(p){
  document.body.classList.add('exam-active');
@@ -732,6 +760,7 @@ const p=list[state.currentPaper],partIndex=Math.min(state.partIndex||0,p.parts.l
 const tabs=p.parts.map((n,i)=>{const total=partCount(p,i),done=Array.from({length:total},(_,q)=>!!answerValue(taskKey(state.currentPaper,i,q))).filter(Boolean).length;return '<button class="task-tab '+(i===partIndex?'active':'')+'" data-part="'+i+'">Part '+(i+1)+'<small>'+done+' of '+total+'</small></button>'}).join('');
 const nums=Array.from({length:count},(_,q)=>{const k=taskKey(state.currentPaper,partIndex,q);return '<button class="question-jump '+(q===state.questionIndex?'current-question ':'')+(answerValue(k)?'answered ':'')+(state.bookmarks[k]?'flagged':'')+'" data-jump="'+q+'">'+(first+q)+'</button>'}).join('');
 app.innerHTML=examHeader(fmt(state.remaining))+'<main class="exam-content"><section class="exam-workspace">'+renderTaskBody(p,partIndex)+'</section></main><nav class="task-bottom-dock"><div class="task-tabs-row">'+tabs+'</div><div class="task-question-row"><div class="task-question-count">Part '+(partIndex+1)+'</div><div class="task-question-numbers">'+nums+'</div><div class="task-arrows"><button class="dock-arrow" id="prevPart" '+(partIndex===0?'disabled':'')+'>←</button><button class="dock-arrow next" id="nextPart">➜</button></div></div></nav>';
+if(p.id==='rue'&&partIndex===2){requestAnimationFrame(()=>{syncPartThreeStems();requestAnimationFrame(syncPartThreeStems)})}
 const startListening=app.querySelector('#startListening');if(startListening)startListening.onclick=()=>{state.listeningStarted=true;renderPractice()};
 const volume=app.querySelector('#listeningVolume');if(volume)volume.oninput=()=>{state.listeningVolume=+volume.value};
 app.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{state.partIndex=+b.dataset.part;state.questionIndex=0;renderPractice()});
